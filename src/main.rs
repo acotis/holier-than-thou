@@ -28,32 +28,77 @@ struct Solution {
     submitted: String,
 }
 
+struct SolutionLog {
+    hole_id: String,
+    solutions: Vec<Solution>,
+}
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
 
     // The golfers we care about.
     
+    let scoring = "bytes";
     let golfers = ["acotis", "lynn", "JayXon"];
+    let timestamp_cutoff = "2026";
 
     // Get a list of all hole IDs via the API.
 
-    let holes_resp = 
-        reqwest::get("http://code.golf/api/holes").await?
-        .text().await?;
+    println!();
+    println!("Fetching list of holes...");
 
+    let holes_resp = reqwest::get("http://code.golf/api/holes").await?.text().await?;
     let holes: Vec<Hole> = serde_json::from_str(&holes_resp).unwrap();
 
     // Collect the full solutions log for each hole, in Rust.
 
-    let futures = holes.iter().map(|hole| (async || (hole.id.clone(), get_solution_log(&hole.id).await))());
+    println!("Fetching solution log for each hole (this will take several seconds)...");
 
-    println!("Fetching API data...");
-    let responses = futures_util::future::join_all(futures).await;
-    println!("Done.");
+    let futures = holes.iter().map(|hole| (async || 
+        SolutionLog {
+            hole_id: hole.id.clone(), 
+            solutions: get_solution_log(&hole.id).await
+        }
+    )());
 
-    for response in responses {
-        println!("{:35} {:?}", response.0, response.1);
+    let mut solution_logs = futures_util::future::join_all(futures).await;
+
+    // Active development:
+
+    println!("Processing data...");
+
+    let before = std::time::Instant::now();
+
+    for log in &mut solution_logs {
+        log.solutions.retain(|solution| solution.scoring == scoring);
+        log.solutions.retain(|solution| *solution.submitted <= *timestamp_cutoff);
+        log.solutions.retain(|solution| golfers.contains(&&*solution.golfer));
+        log.solutions.sort_by_key(|solution| solution.submitted.clone());
+        log.solutions.reverse();
+        log.solutions.dedup_by_key(|solution| solution.golfer.clone());
+        log.solutions.sort_by_key(|solution| solution.submitted.clone());
     }
+
+    let after = std::time::Instant::now();
+
+    println!("Done processing in {}ms.", (after - before).as_millis());
+    println!();
+
+    for log in &solution_logs {
+        if log.hole_id == "prime-numbers" {
+            for solution in &log.solutions {
+                println!(
+                    "{:20} {:4}   {}",
+                    solution.golfer,
+                    solution.bytes,
+                    solution.submitted,
+                );
+            }
+        }
+    }
+
+    println!();
+    println!("{} total solutions", solution_logs.iter().map(|log| log.solutions.len()).sum::<usize>());
 
     Ok(())
 }
