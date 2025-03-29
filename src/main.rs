@@ -29,6 +29,7 @@ struct Solution {
 
     #[serde(default)] length: usize,    // Copy of bytes or chars.
     #[serde(default)] rank: usize,      // Computed by us.
+    #[serde(default)] score: f32,       // Computed by us.
 }
 
 struct SolutionLog {
@@ -100,13 +101,18 @@ async fn main() -> Result<(), Box<dyn Error>> {
         log.solutions. sort_by_key(|solution| solution.golfer.clone());
         log.solutions.dedup_by_key(|solution| solution.golfer.clone());
 
-        // Sort the solutions and assign ranks and medals to them. This
-        // recreates the leaderboard as-it-was in its entirety.
+        // Sort the solutions and assign ranks, scores, and medals to them.
+        // This recreates the leaderboard as-it-was in its entirety.
 
         log.solutions.sort_by_key(|solution| solution.submitted.clone());
         log.solutions.sort_by_key(|solution| solution.length);
 
         for i in 0..log.solutions.len() {
+            log.solutions[i].score =
+                log.solutions[0].length as f32 /
+                log.solutions[i].length as f32 *
+                1000.0;
+
             log.solutions[i].rank = 
                 if i > 0 && log.solutions[i].length == log.solutions[i-1].length {
                     log.solutions[i-1].rank
@@ -133,10 +139,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
     // Debug.
 
     for log in &solution_logs {
-        if log.hole_id == "prime-numbers" {
+        if log.hole_id == "12-days-of-christmas" {
             for solution in &log.solutions {
                 println!(
-                    "{} {:20} {:4}   {}",
+                    "{}  ({:4.0}) {:20} {:4}   {}",
                     match solution.rank {
                         0 =>   format!(" 💎"),
                         1 =>   format!(" 🥇"),
@@ -144,6 +150,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                         3 =>   format!(" 🥉"),
                         4.. => format!("{:3}", solution.rank),
                     },
+                    solution.score,
                     solution.golfer,
                     solution.bytes,
                     solution.submitted,
