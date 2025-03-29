@@ -43,8 +43,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
     
     let scoring = "bytes";
     let golfers = ["acotis", "lynn", "JayXon"];
+    let timestamp_cutoff = "2026";
     //let timestamp_cutoff = "2024-10-11T18:50";
-    let timestamp_cutoff = "2025";
 
     // Get a list of all hole IDs via the API.
 
@@ -67,7 +67,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     let mut solution_logs = futures_util::future::join_all(futures).await;
 
-    // Active development:
+    // Process the data.
 
     println!("Processing data...");
 
@@ -120,18 +120,17 @@ async fn main() -> Result<(), Box<dyn Error>> {
             log.solutions[0].rank = 0;
         }
 
+        // Keep only the entries from golfers we care about.
 
-
-        // Other stuff
-
-        //log.solutions.retain(|solution| golfers.contains(&&*solution.golfer));
-        //log.solutions.sort_by_key(|solution| solution.submitted.clone());
+        log.solutions.retain(|solution| golfers.contains(&&*solution.golfer));
     }
 
     let after = std::time::Instant::now();
 
     println!("Done processing in {}ms.", (after - before).as_millis());
     println!();
+
+    // Debug.
 
     for log in &solution_logs {
         if log.hole_id == "prime-numbers" {
