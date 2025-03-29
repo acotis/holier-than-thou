@@ -19,14 +19,16 @@ struct HoleLink {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct Solution {
-    bytes: u32,
-    chars: u32,
+    bytes: usize,
+    chars: usize,
     golfer: String,
     hole: String,
     lang: String,
     scoring: String,
     submitted: String,
-    #[serde(default)] rank: usize,
+
+    #[serde(default)] length: usize,    // Copy of bytes or chars.
+    #[serde(default)] rank: usize,      // Computed by us.
 }
 
 struct SolutionLog {
@@ -41,7 +43,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
     
     let scoring = "bytes";
     let golfers = ["acotis", "lynn", "JayXon"];
-    let timestamp_cutoff = "2026";
+    //let timestamp_cutoff = "2024-10-11T18:50";
+    let timestamp_cutoff = "2025";
 
     // Get a list of all hole IDs via the API.
 
@@ -72,28 +75,50 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     for log in &mut solution_logs {
 
+        // Give each solution an unqualified "length" which is its length
+        // in either bytes or chars depending on the scoring method we
+        // care about.
+
+        for solution in &mut log.solutions {
+            solution.length = match scoring {
+                "bytes" => solution.bytes,
+                "chars" => solution.chars,
+                _ => panic!("invalid scoring criterion: '{scoring}'"),
+            }
+        }
+
         // Keep only the solutions with the correct scoring method which
         // were submitted before the cutoff.
 
         log.solutions.retain(|solution| solution.scoring == scoring);
         log.solutions.retain(|solution| *solution.submitted <= *timestamp_cutoff);
 
-        // Filter down to only each golfer's latest submission.
+        // Filter down to only each golfer's best submission. This gives
+        // us the submissions which were "active" at the cutoff time.
+
+        log.solutions. sort_by_key(|solution| solution.length);
+        log.solutions. sort_by_key(|solution| solution.golfer.clone());
+        log.solutions.dedup_by_key(|solution| solution.golfer.clone());
+
+        // Sort the solutions and assign ranks and medals to them. This
+        // recreates the leaderboard as-it-was in its entirety.
 
         log.solutions.sort_by_key(|solution| solution.submitted.clone());
-        log.solutions.reverse();
-        log.solutions.sort_by_key(|solution| solution.golfer.clone());
-        //log.solutions.dedup_by_key(|solution| solution.golfer.clone());
+        log.solutions.sort_by_key(|solution| solution.length);
 
-        // Analyze ranks (the API doesn't give us this info directly).
-
-        /*
-        match scoring {
-            "bytes" => log.solutions.sort_by_key(|solution| solution.bytes),
-            "chars" => log.solutions.sort_by_key(|solution| solution.chars),
-            _ => panic!(),
+        for i in 0..log.solutions.len() {
+            log.solutions[i].rank = 
+                if i > 0 && log.solutions[i].length == log.solutions[i-1].length {
+                    log.solutions[i-1].rank
+                } else {
+                    i + 1
+                };
         }
-        */
+
+        if log.solutions.len() > 1 
+        && log.solutions[0].length < log.solutions[1].length {
+            log.solutions[0].rank = 0;
+        }
 
 
 
@@ -109,10 +134,17 @@ async fn main() -> Result<(), Box<dyn Error>> {
     println!();
 
     for log in &solution_logs {
-        if log.hole_id == "catalan-numbers" {
+        if log.hole_id == "prime-numbers" {
             for solution in &log.solutions {
                 println!(
-                    "{:20} {:4}   {}",
+                    "{} {:20} {:4}   {}",
+                    match solution.rank {
+                        0 =>   format!(" 💎"),
+                        1 =>   format!(" 🥇"),
+                        2 =>   format!(" 🥈"),
+                        3 =>   format!(" 🥉"),
+                        4.. => format!("{:3}", solution.rank),
+                    },
                     solution.golfer,
                     solution.bytes,
                     solution.submitted,
