@@ -26,6 +26,7 @@ struct Solution {
     lang: String,
     scoring: String,
     submitted: String,
+    #[serde(default)] rank: usize,
 }
 
 struct SolutionLog {
@@ -70,13 +71,36 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let before = std::time::Instant::now();
 
     for log in &mut solution_logs {
+
+        // Keep only the solutions with the correct scoring method which
+        // were submitted before the cutoff.
+
         log.solutions.retain(|solution| solution.scoring == scoring);
         log.solutions.retain(|solution| *solution.submitted <= *timestamp_cutoff);
-        log.solutions.retain(|solution| golfers.contains(&&*solution.golfer));
+
+        // Filter down to only each golfer's latest submission.
+
         log.solutions.sort_by_key(|solution| solution.submitted.clone());
         log.solutions.reverse();
-        log.solutions.dedup_by_key(|solution| solution.golfer.clone());
-        log.solutions.sort_by_key(|solution| solution.submitted.clone());
+        log.solutions.sort_by_key(|solution| solution.golfer.clone());
+        //log.solutions.dedup_by_key(|solution| solution.golfer.clone());
+
+        // Analyze ranks (the API doesn't give us this info directly).
+
+        /*
+        match scoring {
+            "bytes" => log.solutions.sort_by_key(|solution| solution.bytes),
+            "chars" => log.solutions.sort_by_key(|solution| solution.chars),
+            _ => panic!(),
+        }
+        */
+
+
+
+        // Other stuff
+
+        //log.solutions.retain(|solution| golfers.contains(&&*solution.golfer));
+        //log.solutions.sort_by_key(|solution| solution.submitted.clone());
     }
 
     let after = std::time::Instant::now();
@@ -85,7 +109,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     println!();
 
     for log in &solution_logs {
-        if log.hole_id == "prime-numbers" {
+        if log.hole_id == "catalan-numbers" {
             for solution in &log.solutions {
                 println!(
                     "{:20} {:4}   {}",
