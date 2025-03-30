@@ -162,6 +162,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     // Pretty printing.
 
+    //println!("                         {LGREY}hole name{RESET}   {GREY}scores (J = JayXon){RESET}   {LGREY}delta{RESET} {GREY}(acotis-lynn|gold){RESET}");
+    //println!();
+
     solution_logs.retain(|log|
         log.length_for("acotis") < usize::MAX &&
         log.length_for("lynn") < usize::MAX
@@ -264,10 +267,17 @@ impl fmt::Display for SolutionLog {
 
         let delta = self.length_for("acotis") as isize - self.length_for("lynn") as isize;
         match delta {
-            ..0 => write!(f, "  {DIM}{GREEN}{delta} byte{}{RESET} {GREY}({}){RESET}", if delta.abs() > 1 {"s"} else {""}, self.gold_length)?,
-             0  => write!(f, "  {LGREY}Tie{RESET} {GREY}({}){RESET}", self.gold_length)?,
-            1.. => write!(f, "  {DIM}{RED}+{delta} byte{}{RESET} {GREY}({}){RESET}", if delta.abs() > 1 {"s"} else {""}, self.gold_length)?,
+            ..0 => write!(f, "  {DIM}{GREEN}{delta} byte{}{RESET}", if delta.abs() > 1 {"s"} else {""})?,
+             0  => write!(f, "  {LGREY}Tie{RESET}")?,
+            1.. => write!(f, "  {DIM}{RED}+{delta} byte{}{RESET}", if delta.abs() > 1 {"s"} else {""})?,
         };
+
+        write!(
+            f, " {GREY}({}-{}|{}){RESET}",
+            self.length_for("acotis"),
+            self.length_for("lynn"),
+            self.gold_length,
+        )?;
 
         Ok(())
     }
