@@ -166,15 +166,14 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     // Pretty printing.
 
+    solution_logs.retain(|log|
+        log.length_for("acotis") < usize::MAX &&
+        log.length_for("lynn") < usize::MAX
+    );
+
     solution_logs.sort_by_key(|log|
-        log.solutions
-           .iter()
-           .find(|solution| solution.golfer == "acotis")
-           .map(|solution|
-               (solution.score * 10000.0) as usize
-               + if solution.rank == 0 {1} else {0}
-            )
-           .unwrap_or(0)
+        log.sort_score("acotis") as isize -
+        log.sort_score("lynn") as isize
     );
 
     solution_logs.reverse();
@@ -183,6 +182,12 @@ async fn main() -> Result<(), Box<dyn Error>> {
         println!("{log}");
     }
 
+    // Summary.
+
+    println!();
+    println!("{} wins",   solution_logs.iter().filter(|log| log.length_for("acotis") <  log.length_for("lynn")).count());
+    println!("{} draws",  solution_logs.iter().filter(|log| log.length_for("acotis") == log.length_for("lynn")).count());
+    println!("{} losses", solution_logs.iter().filter(|log| log.length_for("acotis") >  log.length_for("lynn")).count());
     println!();
 
     Ok(())
@@ -245,7 +250,32 @@ impl fmt::Display for SolutionLog {
             )?;
         }
 
+        if self.length_for("acotis") == self.length_for("lynn") {
+            write!(f, " *")?;
+        }
+
         Ok(())
+    }
+}
+
+impl SolutionLog {
+    fn sort_score(&self, golfer: &str) -> usize {
+        self.solutions
+            .iter()
+            .find(|solution| solution.golfer == golfer)
+            .map(|solution|
+                (solution.score * 10000.0) as usize
+                + if solution.rank == 0 {1} else {0}
+            )
+            .unwrap_or(0)
+    }
+
+    fn length_for(&self, golfer: &str) -> usize {
+        self.solutions
+            .iter()
+            .find(|solution| solution.golfer == golfer)
+            .map(|solution| solution.length)
+            .unwrap_or(usize::MAX)
     }
 }
 
