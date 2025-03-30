@@ -164,6 +164,21 @@ async fn main() -> Result<(), Box<dyn Error>> {
     println!("{} total solutions", solution_logs.iter().map(|log| log.solutions.len()).sum::<usize>());
     println!();
 
+    // Pretty printing.
+
+    solution_logs.sort_by_key(|log|
+        log.solutions
+           .iter()
+           .find(|solution| solution.golfer == "acotis")
+           .map(|solution|
+               (solution.score * 10000.0) as usize
+               + if solution.rank == 0 {1} else {0}
+            )
+           .unwrap_or(0)
+    );
+
+    solution_logs.reverse();
+
     for log in &solution_logs {
         println!("{log}");
     }
@@ -199,7 +214,7 @@ impl fmt::Display for SolutionLog {
         let grey  = "\x1b[38;5;236m";
         let reset = "\x1b[0m";
 
-        write!(f, "{:35}", self.hole_id)?;
+        write!(f, "{:>33} ", self.hole_id)?;
 
         let line_width = 20;
         let mut markers: Vec<(String, usize)> = vec![];
