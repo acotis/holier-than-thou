@@ -256,9 +256,9 @@ impl fmt::Display for SolutionLog {
 
         let delta = self.length_for("acotis") as isize - self.length_for("lynn") as isize;
         match delta {
-            ..0 => write!(f, "  {DIM}{GREEN}{delta} bytes{RESET} {GREY}({}){RESET}", self.gold_length)?,
+            ..0 => write!(f, "  {DIM}{GREEN}{delta} byte{}{RESET} {GREY}({}){RESET}", if delta.abs() > 1 {"s"} else {""}, self.gold_length)?,
              0  => write!(f, "  {LGREY}Tie{RESET} {GREY}({}){RESET}", self.gold_length)?,
-            1.. => write!(f, "  {DIM}{RED}+{delta} bytes{RESET} {GREY}({}){RESET}", self.gold_length)?,
+            1.. => write!(f, "  {DIM}{RED}+{delta} byte{}{RESET} {GREY}({}){RESET}", if delta.abs() > 1 {"s"} else {""}, self.gold_length)?,
         };
 
         Ok(())
