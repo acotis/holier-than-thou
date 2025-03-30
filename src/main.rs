@@ -1,4 +1,5 @@
 
+use std::fmt;
 use std::error::Error;
 use serde::{Serialize, Deserialize};
 
@@ -161,6 +162,13 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     println!();
     println!("{} total solutions", solution_logs.iter().map(|log| log.solutions.len()).sum::<usize>());
+    println!();
+
+    for log in &solution_logs {
+        println!("{log}");
+    }
+
+    println!();
 
     Ok(())
 }
@@ -180,5 +188,49 @@ async fn get_solution_log(hole_id: &str) -> Vec<Solution> {
     }
 
     panic!("When fetching solutions log for hole \"{hole_id}\", the code.golf API gave a non-2XX status code for 10 attempts in a row. The code.golf API is a little unstable, so you might just try re-running the script.");
+}
+
+impl fmt::Display for SolutionLog {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let bold  = "\x1b[1m";
+        let green = "\x1b[32m";
+        let brown = "\x1b[38;5;130m";
+        let blue  = "\x1b[36m";
+        let grey  = "\x1b[38;5;236m";
+        let reset = "\x1b[0m";
+
+        write!(f, "{:35}", self.hole_id)?;
+
+        let line_width = 20;
+        let mut markers: Vec<(String, usize)> = vec![];
+
+        for sol in &self.solutions {
+            let sigil = match sol.golfer.as_str() {
+                "acotis" => format!("{bold}{green}a{reset}"),
+                "lynn"   => format!("{bold}{brown}l{reset}"),
+                "JayXon" => format!("{bold}{blue }J{reset}"),
+                _        => format!("g"),
+            };
+
+            let mut shift = (sol.score / 1000.0 * line_width as f32) as usize;
+            while markers.iter().any(|marker| marker.1 == shift) {
+                shift -= 1;
+            }
+
+            markers.push((sigil, shift));
+        }
+
+        for i in 0..line_width+1 {
+            write!(
+                f, "{}",
+                markers.iter()
+                       .find(|marker| marker.1 == i)
+                       .map(|marker| marker.0.clone())
+                       .unwrap_or(format!("{grey}—{reset}"))
+            )?;
+        }
+
+        Ok(())
+    }
 }
 
