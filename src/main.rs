@@ -3,6 +3,18 @@ use std::fmt;
 use std::error::Error;
 use serde::{Serialize, Deserialize};
 
+const BOLD:    &'static str = "\x1b[1m";
+const ULINE:   &'static str = "\x1b[4m";
+const GREEN:   &'static str = "\x1b[32m";
+const RED:     &'static str = "\x1b[31m";
+const BROWN:   &'static str = "\x1b[38;5;130m";
+const BLUE:    &'static str = "\x1b[36m";
+const GREY:    &'static str = "\x1b[38;5;236m";
+const LGREY:   &'static str = "\x1b[38;5;240m";
+const LLGREY:  &'static str = "\x1b[38;5;244m";
+const LLLGREY: &'static str = "\x1b[38;5;252m";
+const RESET:   &'static str = "\x1b[0m";
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct Hole {
     category: String,
@@ -45,8 +57,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
     
     let scoring = "bytes";
     let golfers = ["acotis", "lynn", "JayXon"];
-    let timestamp_cutoff = "2026";
+    //let timestamp_cutoff = "current moment";
     //let timestamp_cutoff = "2024-10-11T18:50";
+    //let timestamp_cutoff = "2024-10-12";
+    let timestamp_cutoff = "2025-04";
 
     // Get a list of all hole IDs via the API.
 
@@ -137,33 +151,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
     println!("Done processing in {}ms.", (after - before).as_millis());
     println!();
 
-    // Debug.
-
-    for log in &solution_logs {
-        if log.hole_id == "12-days-of-christmas" {
-            for solution in &log.solutions {
-                println!(
-                    "{}  ({:4.0}) {:20} {:4}   {}",
-                    match solution.rank {
-                        0 =>   format!(" 💎"),
-                        1 =>   format!(" 🥇"),
-                        2 =>   format!(" 🥈"),
-                        3 =>   format!(" 🥉"),
-                        4.. => format!("{:3}", solution.rank),
-                    },
-                    solution.score,
-                    solution.golfer,
-                    solution.bytes,
-                    solution.submitted,
-                );
-            }
-        }
-    }
-
-    println!();
-    println!("{} total solutions", solution_logs.iter().map(|log| log.solutions.len()).sum::<usize>());
-    println!();
-
     // Pretty printing.
 
     solution_logs.retain(|log|
@@ -184,10 +171,12 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     // Summary.
 
+    let wins   = solution_logs.iter().filter(|log| log.length_for("acotis") <  log.length_for("lynn")).count();
+    let draws  = solution_logs.iter().filter(|log| log.length_for("acotis") == log.length_for("lynn")).count();
+    let losses = solution_logs.iter().filter(|log| log.length_for("acotis") >  log.length_for("lynn")).count();
+
     println!();
-    println!("{} wins",   solution_logs.iter().filter(|log| log.length_for("acotis") <  log.length_for("lynn")).count());
-    println!("{} draws",  solution_logs.iter().filter(|log| log.length_for("acotis") == log.length_for("lynn")).count());
-    println!("{} losses", solution_logs.iter().filter(|log| log.length_for("acotis") >  log.length_for("lynn")).count());
+    println!("{LGREY}Performance summary by{RESET} {LLGREY}{ULINE}{timestamp_cutoff}{RESET}{LGREY}:{RESET} {BOLD}{GREEN}{wins}{RESET} {LGREY}/{RESET} {LLLGREY}{draws}{RESET} {LGREY}/{RESET} {BOLD}{RED}{losses}{RESET}");
     println!();
 
     Ok(())
@@ -212,13 +201,6 @@ async fn get_solution_log(hole_id: &str) -> Vec<Solution> {
 
 impl fmt::Display for SolutionLog {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let bold  = "\x1b[1m";
-        let green = "\x1b[32m";
-        let brown = "\x1b[38;5;130m";
-        let blue  = "\x1b[36m";
-        let grey  = "\x1b[38;5;236m";
-        let reset = "\x1b[0m";
-
         write!(f, "{:>33} ", self.hole_id)?;
 
         let line_width = 20;
@@ -226,9 +208,9 @@ impl fmt::Display for SolutionLog {
 
         for sol in &self.solutions {
             let sigil = match sol.golfer.as_str() {
-                "acotis" => format!("{bold}{green}a{reset}"),
-                "lynn"   => format!("{bold}{brown}l{reset}"),
-                "JayXon" => format!("{bold}{blue }J{reset}"),
+                "acotis" => format!("{BOLD}{GREEN}a{RESET}"),
+                "lynn"   => format!("{BOLD}{BROWN}l{RESET}"),
+                "JayXon" => format!("{BOLD}{BLUE }J{RESET}"),
                 _        => format!("g"),
             };
 
@@ -246,7 +228,7 @@ impl fmt::Display for SolutionLog {
                 markers.iter()
                        .find(|marker| marker.1 == i)
                        .map(|marker| marker.0.clone())
-                       .unwrap_or(format!("{grey}—{reset}"))
+                       .unwrap_or(format!("{GREY}—{RESET}"))
             )?;
         }
 
