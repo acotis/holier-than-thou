@@ -181,6 +181,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let draws  = solution_logs.iter().filter(|log| log.length_for("acotis") == log.length_for("lynn")).count();
     let losses = solution_logs.iter().filter(|log| log.length_for("acotis") >  log.length_for("lynn")).count();
     let delta  = losses as isize - wins as isize;
+    let total  = wins + losses + draws;
 
     let empty  = "";
     let ssb    = "Summary as of";
@@ -194,9 +195,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
     print!("{empty:lcenter$}{GREEN}{wins}{RESET} {LGREY}/{RESET} {LLLGREY}{draws}{RESET} {LGREY}/{RESET} {RED}{losses}{RESET}{empty:rcenter$}  ");
 
     match delta {
-        1..   => print!("{BOLD}{RED}+{delta} loss{}{RESET}", if delta.abs() > 1 {"es"} else {""}),
-        0     => print!("Tie!!"),
-        ..=-1 => print!("{BOLD}{GREEN}+{} win{}!!!{RESET}", -delta, if delta.abs() > 1 {"s"} else {""}),
+        1..   => print!("{BOLD}{RED}+{delta} loss{}{RESET} {LGREY}({total} holes){RESET}", if delta.abs() > 1 {"es"} else {"!"}),
+        0     => print!("Tie!! {LGREY}({total} holes){RESET}"),
+        ..=-1 => print!("{BOLD}{GREEN}+{} win{}!!!{RESET} {LGREY}({total} holes){RESET}", -delta, if delta.abs() > 1 {"s!"} else {""}),
     };
 
     println!();
