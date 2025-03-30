@@ -3,18 +3,19 @@ use std::fmt;
 use std::error::Error;
 use serde::{Serialize, Deserialize};
 
-const BOLD:    &'static str = "\x1b[1m";
-const DIM:     &'static str = "\x1b[2m";
-const ULINE:   &'static str = "\x1b[4m";
-const GREEN:   &'static str = "\x1b[32m";
-const RED:     &'static str = "\x1b[31m";
-const BROWN:   &'static str = "\x1b[38;5;130m";
-const BLUE:    &'static str = "\x1b[36m";
-const GREY:    &'static str = "\x1b[38;5;236m";
-const LGREY:   &'static str = "\x1b[38;5;240m";
-const LLGREY:  &'static str = "\x1b[38;5;244m";
-const LLLGREY: &'static str = "\x1b[38;5;252m";
-const RESET:   &'static str = "\x1b[0m";
+const BOLD:     &'static str = "\x1b[1m";
+const DIM:      &'static str = "\x1b[2m";
+const ULINE:    &'static str = "\x1b[4m";
+const GREEN:    &'static str = "\x1b[32m";
+const RED:      &'static str = "\x1b[31m";
+const BROWN:    &'static str = "\x1b[38;5;130m";
+const BLUE:     &'static str = "\x1b[36m";
+const GREY:     &'static str = "\x1b[38;5;236m";
+const LGREY:    &'static str = "\x1b[38;5;240m";
+const LLGREY:   &'static str = "\x1b[38;5;244m";
+const LLLGREY:  &'static str = "\x1b[38;5;252m";
+const LLLLGREY: &'static str = "\x1b[38;5;254m";
+const RESET:    &'static str = "\x1b[0m";
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct Hole {
@@ -223,7 +224,7 @@ async fn get_solution_log(hole_id: &str) -> Vec<Solution> {
 
 impl fmt::Display for SolutionLog {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{:>33}  ", self.hole_id)?;
+        write!(f, "{LLLLGREY}{:>33}{RESET}  ", self.hole_id)?;
 
         let line_width = 20;
         let mut markers: Vec<(String, usize)> = vec![];
