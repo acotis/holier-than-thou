@@ -60,7 +60,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     
     let scoring = "bytes";
     let golfers = ["acotis", "lynn", "JayXon"];
-    let timestamp_cutoff = "current moment";
+    let timestamp_cutoff = "2025-01-01";
     //let timestamp_cutoff = "2024-10-11T18:50";
     //let timestamp_cutoff = "2024-10-12";
     //let timestamp_cutoff = "2025-04";
@@ -145,7 +145,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
             log.solutions[0].rank = 0;
         }
 
-        log.gold_length = log.solutions[0].length;
+        if log.solutions.len() > 0 {
+            log.gold_length = log.solutions[0].length;
+        }
 
         // Keep only the entries from golfers we care about.
 
@@ -183,10 +185,12 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let delta  = losses as isize - wins as isize;
     let total  = wins + losses + draws;
 
+    let num_len = |num: usize| if num > 0 {num.ilog(10) + 1} else {1};
+
     let empty  = "";
     let ssb    = "Summary as of";
     let indent = 33 - (ssb.len() + 1 + timestamp_cutoff.len());
-    let wdl_width = (wins.ilog(10) + draws.ilog(10) + losses.ilog(10) + 3 + 6) as usize;
+    let wdl_width = (num_len(wins) + num_len(draws) + num_len(losses) + 6) as usize;
     let lcenter = (21 - wdl_width) / 2;
     let rcenter = ((21 - wdl_width) + 1) / 2;
 
