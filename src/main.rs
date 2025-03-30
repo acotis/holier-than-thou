@@ -49,6 +49,7 @@ struct Solution {
 struct SolutionLog {
     hole_id: String,
     solutions: Vec<Solution>,
+    gold_length: usize,
 }
 
 #[tokio::main]
@@ -78,7 +79,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let futures = holes.iter().map(|hole| (async || 
         SolutionLog {
             hole_id: hole.id.clone(), 
-            solutions: get_solution_log(&hole.id).await
+            solutions: get_solution_log(&hole.id).await,
+            gold_length: usize::MAX,
         }
     )());
 
@@ -142,6 +144,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
             log.solutions[0].rank = 0;
         }
 
+        log.gold_length = log.solutions[0].length;
+
         // Keep only the entries from golfers we care about.
 
         log.solutions.retain(|solution| golfers.contains(&&*solution.golfer));
@@ -186,7 +190,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     println!();
     print!("{empty:indent$}{LGREY}{ssb}{RESET} {LLGREY}{ULINE}{timestamp_cutoff}{RESET}  ");
-    print!("{empty:lcenter$}{BOLD}{GREEN}{wins}{RESET} {LGREY}/{RESET} {LLLGREY}{draws}{RESET} {LGREY}/{RESET} {BOLD}{RED}{losses}{RESET}{empty:rcenter$}  ");
+    print!("{empty:lcenter$}{GREEN}{wins}{RESET} {LGREY}/{RESET} {LLLGREY}{draws}{RESET} {LGREY}/{RESET} {RED}{losses}{RESET}{empty:rcenter$}  ");
 
     match delta {
         1..   => print!("{BOLD}{RED}+{delta} loss{}{RESET}", if delta.abs() > 1 {"es"} else {""}),
@@ -252,9 +256,9 @@ impl fmt::Display for SolutionLog {
 
         let delta = self.length_for("acotis") as isize - self.length_for("lynn") as isize;
         match delta {
-            ..0 => write!(f, "  {DIM}{GREEN}{delta} bytes{RESET}")?,
-             0  => write!(f, "  {LGREY}Tie{RESET}")?,
-            1.. => write!(f, "  {DIM}{RED}+{delta} bytes{RESET}")?,
+            ..0 => write!(f, "  {DIM}{GREEN}{delta} bytes{RESET} {GREY}({}){RESET}", self.gold_length)?,
+             0  => write!(f, "  {LGREY}Tie{RESET} {GREY}({}){RESET}", self.gold_length)?,
+            1.. => write!(f, "  {DIM}{RED}+{delta} bytes{RESET} {GREY}({}){RESET}", self.gold_length)?,
         };
 
         Ok(())
