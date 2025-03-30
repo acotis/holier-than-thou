@@ -4,6 +4,7 @@ use std::error::Error;
 use serde::{Serialize, Deserialize};
 
 const BOLD:    &'static str = "\x1b[1m";
+const DIM:     &'static str = "\x1b[2m";
 const ULINE:   &'static str = "\x1b[4m";
 const GREEN:   &'static str = "\x1b[32m";
 const RED:     &'static str = "\x1b[31m";
@@ -174,9 +175,26 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let wins   = solution_logs.iter().filter(|log| log.length_for("acotis") <  log.length_for("lynn")).count();
     let draws  = solution_logs.iter().filter(|log| log.length_for("acotis") == log.length_for("lynn")).count();
     let losses = solution_logs.iter().filter(|log| log.length_for("acotis") >  log.length_for("lynn")).count();
+    let delta  = losses as isize - wins as isize;
+
+    let empty  = "";
+    let ssb    = "Summary as of";
+    let indent = 33 - (ssb.len() + 1 + timestamp_cutoff.len());
+    let wdl_width = (wins.ilog(10) + draws.ilog(10) + losses.ilog(10) + 3 + 6) as usize;
+    let lcenter = (21 - wdl_width) / 2;
+    let rcenter = ((21 - wdl_width) + 1) / 2;
 
     println!();
-    println!("{LGREY}Performance summary by{RESET} {LLGREY}{ULINE}{timestamp_cutoff}{RESET}{LGREY}:{RESET} {BOLD}{GREEN}{wins}{RESET} {LGREY}/{RESET} {LLLGREY}{draws}{RESET} {LGREY}/{RESET} {BOLD}{RED}{losses}{RESET}");
+    print!("{empty:indent$}{LGREY}{ssb}{RESET} {LLGREY}{ULINE}{timestamp_cutoff}{RESET}  ");
+    print!("{empty:lcenter$}{BOLD}{GREEN}{wins}{RESET} {LGREY}/{RESET} {LLLGREY}{draws}{RESET} {LGREY}/{RESET} {BOLD}{RED}{losses}{RESET}{empty:rcenter$}  ");
+
+    match delta {
+        1..   => print!("{BOLD}{RED}+{delta} loss{}{RESET}", if delta.abs() > 1 {"es"} else {""}),
+        0     => print!("Tie!!"),
+        ..=-1 => print!("{BOLD}{GREEN}+{} win{}!!!{RESET}", -delta, if delta.abs() > 1 {"s"} else {""}),
+    };
+
+    println!();
     println!();
 
     Ok(())
@@ -201,7 +219,7 @@ async fn get_solution_log(hole_id: &str) -> Vec<Solution> {
 
 impl fmt::Display for SolutionLog {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{:>33} ", self.hole_id)?;
+        write!(f, "{:>33}  ", self.hole_id)?;
 
         let line_width = 20;
         let mut markers: Vec<(String, usize)> = vec![];
@@ -232,9 +250,12 @@ impl fmt::Display for SolutionLog {
             )?;
         }
 
-        if self.length_for("acotis") == self.length_for("lynn") {
-            write!(f, " *")?;
-        }
+        let delta = self.length_for("acotis") as isize - self.length_for("lynn") as isize;
+        match delta {
+            ..0 => write!(f, "  {DIM}{GREEN}{delta} bytes{RESET}")?,
+             0  => write!(f, "  {LGREY}Tie{RESET}")?,
+            1.. => write!(f, "  {DIM}{RED}+{delta} bytes{RESET}")?,
+        };
 
         Ok(())
     }
