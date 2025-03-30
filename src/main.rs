@@ -57,10 +57,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
     
     let scoring = "bytes";
     let golfers = ["acotis", "lynn", "JayXon"];
-    //let timestamp_cutoff = "current moment";
+    let timestamp_cutoff = "current moment";
     //let timestamp_cutoff = "2024-10-11T18:50";
     //let timestamp_cutoff = "2024-10-12";
-    let timestamp_cutoff = "2025-04";
+    //let timestamp_cutoff = "2025-04";
 
     // Get a list of all hole IDs via the API.
 
