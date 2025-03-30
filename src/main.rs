@@ -60,7 +60,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     
     let scoring = "bytes";
     let golfers = ["acotis", "lynn", "JayXon"];
-    let timestamp_cutoff = "current moment";
+    let timestamp_cutoff = "2025-3-30";
     //let timestamp_cutoff = "2024-10-11T18:50";
     //let timestamp_cutoff = "2024-10-12";
     //let timestamp_cutoff = "2025-04";
@@ -158,6 +158,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     println!("Done processing in {}ms.", (after - before).as_millis());
     println!();
+    println!();
 
     // Pretty printing.
 
@@ -189,7 +190,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     let empty  = "";
     let ssb    = "Summary as of";
-    let indent = 33 - (ssb.len() + 1 + timestamp_cutoff.len());
+    let indent = 34 - (ssb.len() + 1 + timestamp_cutoff.len());
     let wdl_width = (num_len(wins) + num_len(draws) + num_len(losses) + 6) as usize;
     let lcenter = (21 - wdl_width) / 2;
     let rcenter = ((21 - wdl_width) + 1) / 2;
@@ -204,6 +205,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         ..=-1 => print!("{BOLD}{GREEN}+{} win{}!!!{RESET} {LGREY}({total} holes){RESET}", -delta, if delta.abs() > 1 {"s!"} else {""}),
     };
 
+    println!();
     println!();
     println!();
 
@@ -229,7 +231,7 @@ async fn get_solution_log(hole_id: &str) -> Vec<Solution> {
 
 impl fmt::Display for SolutionLog {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{LLLLGREY}{:>33}{RESET}  ", self.hole_id)?;
+        write!(f, "{LLLLGREY}{:>34}{RESET}  ", self.hole_id)?;
 
         let line_width = 20;
         let mut markers: Vec<(String, usize)> = vec![];
