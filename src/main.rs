@@ -62,6 +62,7 @@ struct Arguments {
     #[arg(short, long)] reference: Option<String>,
     #[arg(short, long, default_value="rust")] lang: String,
     #[arg(short, long, default_value="bytes")] scoring: String,
+    #[arg(short, long, default_value="current moment")] cutoff: String,
 }
 
 #[tokio::main]
@@ -75,14 +76,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
     if let Some(reference) = args.reference {
         golfers.push(reference);
     }
-
-    // The golfers we care about.
-    
-    let timestamp_cutoff = "2025-03-30";
-
-    //let timestamp_cutoff = "2024-10-11T18:50";
-    //let timestamp_cutoff = "2024-10-12";
-    //let timestamp_cutoff = "2025-04";
 
     // Get a list of all hole IDs via the API.
 
@@ -131,7 +124,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         // were submitted before the cutoff.
 
         log.solutions.retain(|solution| solution.scoring == args.scoring);
-        log.solutions.retain(|solution| *solution.submitted <= *timestamp_cutoff);
+        log.solutions.retain(|solution| *solution.submitted <= *args.cutoff);
 
         // Filter down to only each golfer's best submission. This gives
         // us the submissions which were "active" at the cutoff time.
@@ -210,13 +203,13 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     let empty  = "";
     let ssb    = "Summary as of";
-    let indent = 34 - (ssb.len() + 1 + timestamp_cutoff.len());
+    let indent = 34 - (ssb.len() + 1 + args.cutoff.len());
     let wdl_width = (num_len(wins) + num_len(draws) + num_len(losses) + 6) as usize;
     let lcenter = (21 - wdl_width) / 2;
     let rcenter = ((21 - wdl_width) + 1) / 2;
 
     println!();
-    print!("{empty:indent$}{LGREY}{ssb}{RESET} {LLGREY}{ULINE}{timestamp_cutoff}{RESET}  ");
+    print!("{empty:indent$}{LGREY}{ssb}{RESET} {LLGREY}{ULINE}{}{RESET}  ", args.cutoff);
     print!("{empty:lcenter$}{GREEN}{wins}{RESET} {LGREY}/{RESET} {LLLGREY}{draws}{RESET} {LGREY}/{RESET} {RED}{losses}{RESET}{empty:rcenter$}  ");
 
     match delta {
