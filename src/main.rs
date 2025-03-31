@@ -53,6 +53,7 @@ struct SolutionLog {
     solutions: Vec<Solution>,
     gold_length: usize,
     golfers: Vec<String>,
+    scoring: String,
 }
 
 #[derive(Parser)]
@@ -95,6 +96,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
             solutions: get_solution_log(&args.lang, &hole.id).await,
             gold_length: usize::MAX,
             golfers: golfers.to_vec(),
+            scoring: args.scoring.clone(),
         }
     )());
 
@@ -290,9 +292,9 @@ impl fmt::Display for SolutionLog {
 
         let delta = self.length_for(&self.golfers[0]) as isize - self.length_for(&self.golfers[1]) as isize;
         match delta {
-            ..0 => write!(f, "  {DIM}{GREEN}{delta} byte{}{RESET}", if delta.abs() > 1 {"s"} else {""})?,
+            ..0 => write!(f, "  {DIM}{GREEN}{delta} {}{}{RESET}", &self.scoring[..4], if delta.abs() > 1 {"s"} else {""})?,
+            1.. => write!(f, "  {DIM}{RED}+{delta} {}{}{RESET}",  &self.scoring[..4], if delta.abs() > 1 {"s"} else {""})?,
              0  => write!(f, "  {LGREY}Tie{RESET}")?,
-            1.. => write!(f, "  {DIM}{RED}+{delta} byte{}{RESET}", if delta.abs() > 1 {"s"} else {""})?,
         };
 
         write!(
