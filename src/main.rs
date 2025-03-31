@@ -227,8 +227,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     println!();
 
-    let closer_v1 = format!("{} vs {}", golfers[0], golfers[1]);
-    let closer_v2 = format!("{} v {}", golfers[0], golfers[1]);
+    let closer_v1 = format!("{} vs. {}", golfers[0], golfers[1]);
+    let closer_v2 = format!("{} v. {}", golfers[0], golfers[1]);
 
     let closer = if (closer_v1.len() - wdl_width) % 2 == 0 {
         closer_v1
