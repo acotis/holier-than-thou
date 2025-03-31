@@ -51,6 +51,7 @@ struct SolutionLog {
     hole_id: String,
     solutions: Vec<Solution>,
     gold_length: usize,
+    golfers: Vec<String>,
 }
 
 #[tokio::main]
@@ -58,9 +59,16 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     // The golfers we care about.
     
+    let lang = "rust";
     let scoring = "bytes";
-    let golfers = ["acotis", "lynn", "JayXon"];
-    let timestamp_cutoff = "2025-3-30";
+    let golfers = [
+        String::from("acotis"),
+        String::from("lynn"),
+        String::from("JayXon"),
+    ];
+
+    let timestamp_cutoff = "2025-03-30";
+
     //let timestamp_cutoff = "2024-10-11T18:50";
     //let timestamp_cutoff = "2024-10-12";
     //let timestamp_cutoff = "2025-04";
@@ -73,15 +81,16 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let holes_resp = reqwest::get("http://code.golf/api/holes").await?.text().await?;
     let holes: Vec<Hole> = serde_json::from_str(&holes_resp).unwrap();
 
-    // Collect the full solutions log for each hole, in Rust.
+    // Collect the full solutions log for each hole in the selected language.
 
     println!("Fetching solution log for each hole (this will take several seconds)...");
 
     let futures = holes.iter().map(|hole| (async || 
         SolutionLog {
             hole_id: hole.id.clone(), 
-            solutions: get_solution_log(&hole.id).await,
+            solutions: get_solution_log(lang, &hole.id).await,
             gold_length: usize::MAX,
+            golfers: golfers.to_vec(),
         }
     )());
 
@@ -151,7 +160,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
         // Keep only the entries from golfers we care about.
 
-        log.solutions.retain(|solution| golfers.contains(&&*solution.golfer));
+        log.solutions.retain(|solution| golfers.contains(&solution.golfer));
     }
 
     let after = std::time::Instant::now();
@@ -162,17 +171,14 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     // Pretty printing.
 
-    //println!("                         {LGREY}hole name{RESET}   {GREY}scores (J = JayXon){RESET}   {LGREY}delta{RESET} {GREY}(acotis-lynn|gold){RESET}");
-    //println!();
-
     solution_logs.retain(|log|
-        log.length_for("acotis") < usize::MAX &&
-        log.length_for("lynn") < usize::MAX
+        log.length_for(&golfers[0]) < usize::MAX &&
+        log.length_for(&golfers[1]) < usize::MAX
     );
 
     solution_logs.sort_by_key(|log|
-        log.sort_score("acotis") as isize -
-        log.sort_score("lynn") as isize
+        log.sort_score(&golfers[0]) as isize -
+        log.sort_score(&golfers[1]) as isize
     );
 
     solution_logs.reverse();
@@ -183,9 +189,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     // Summary.
 
-    let wins   = solution_logs.iter().filter(|log| log.length_for("acotis") <  log.length_for("lynn")).count();
-    let draws  = solution_logs.iter().filter(|log| log.length_for("acotis") == log.length_for("lynn")).count();
-    let losses = solution_logs.iter().filter(|log| log.length_for("acotis") >  log.length_for("lynn")).count();
+    let wins   = solution_logs.iter().filter(|log| log.length_for(&golfers[0]) <  log.length_for(&golfers[1])).count();
+    let draws  = solution_logs.iter().filter(|log| log.length_for(&golfers[0]) == log.length_for(&golfers[1])).count();
+    let losses = solution_logs.iter().filter(|log| log.length_for(&golfers[0]) >  log.length_for(&golfers[1])).count();
     let delta  = losses as isize - wins as isize;
     let total  = wins + losses + draws;
 
@@ -215,10 +221,11 @@ async fn main() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-async fn get_solution_log(hole_id: &str) -> Vec<Solution> {
+async fn get_solution_log(lang: &str, hole_id: &str) -> Vec<Solution> {
     let url = format!(
-        "http://code.golf/api/solutions-log?hole={}&lang=rust",
+        "http://code.golf/api/solutions-log?hole={}&lang={}",
         urlencoding::encode(hole_id),
+        lang,
     );
 
     for _attempt in 0..10 {
@@ -240,12 +247,11 @@ impl fmt::Display for SolutionLog {
         let mut markers: Vec<(String, usize)> = vec![];
 
         for sol in &self.solutions {
-            let sigil = match sol.golfer.as_str() {
-                "acotis" => format!("{BOLD}{GREEN}a{RESET}"),
-                "lynn"   => format!("{BOLD}{BROWN}l{RESET}"),
-                "JayXon" => format!("{BOLD}{BLUE }J{RESET}"),
-                _        => format!("g"),
-            };
+            let sigil = format!(
+                "{BOLD}{}{}{RESET}",
+                [GREEN, BROWN, BLUE][self.golfers.iter().position(|i|i==&sol.golfer).unwrap()],
+                sol.golfer.chars().next().unwrap(),
+            );
 
             let mut shift = (sol.score / 1000.0 * line_width as f32) as usize;
             while markers.iter().any(|marker| marker.1 == shift) {
@@ -265,7 +271,7 @@ impl fmt::Display for SolutionLog {
             )?;
         }
 
-        let delta = self.length_for("acotis") as isize - self.length_for("lynn") as isize;
+        let delta = self.length_for(&self.golfers[0]) as isize - self.length_for(&self.golfers[1]) as isize;
         match delta {
             ..0 => write!(f, "  {DIM}{GREEN}{delta} byte{}{RESET}", if delta.abs() > 1 {"s"} else {""})?,
              0  => write!(f, "  {LGREY}Tie{RESET}")?,
@@ -274,8 +280,8 @@ impl fmt::Display for SolutionLog {
 
         write!(
             f, " {GREY}({}-{}|{}){RESET}",
-            self.length_for("acotis"),
-            self.length_for("lynn"),
+            self.length_for(&self.golfers[0]),
+            self.length_for(&self.golfers[1]),
             self.gold_length,
         )?;
 
