@@ -2,6 +2,7 @@
 use std::fmt;
 use std::error::Error;
 use serde::{Serialize, Deserialize};
+use clap::Parser;
 
 const BOLD:     &'static str = "\x1b[1m";
 const DIM:      &'static str = "\x1b[2m";
@@ -54,19 +55,29 @@ struct SolutionLog {
     golfers: Vec<String>,
 }
 
+#[derive(Parser)]
+struct Arguments {
+    me: String,
+    them: String,
+    #[arg(short, long)] reference: Option<String>,
+    #[arg(short, long, default_value="rust")] lang: String,
+    #[arg(short, long, default_value="bytes")] scoring: String,
+}
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
+    
+    // Parse arguments.
+
+    let args = Arguments::parse();
+    let mut golfers = vec![args.me, args.them];
+
+    if let Some(reference) = args.reference {
+        golfers.push(reference);
+    }
 
     // The golfers we care about.
     
-    let lang = "rust";
-    let scoring = "bytes";
-    let golfers = [
-        String::from("acotis"),
-        String::from("lynn"),
-        String::from("JayXon"),
-    ];
-
     let timestamp_cutoff = "2025-03-30";
 
     //let timestamp_cutoff = "2024-10-11T18:50";
@@ -88,7 +99,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let futures = holes.iter().map(|hole| (async || 
         SolutionLog {
             hole_id: hole.id.clone(), 
-            solutions: get_solution_log(lang, &hole.id).await,
+            solutions: get_solution_log(&args.lang, &hole.id).await,
             gold_length: usize::MAX,
             golfers: golfers.to_vec(),
         }
@@ -109,17 +120,17 @@ async fn main() -> Result<(), Box<dyn Error>> {
         // care about.
 
         for solution in &mut log.solutions {
-            solution.length = match scoring {
+            solution.length = match &*args.scoring {
                 "bytes" => solution.bytes,
                 "chars" => solution.chars,
-                _ => panic!("invalid scoring criterion: '{scoring}'"),
+                _ => panic!("invalid scoring criterion: '{}'", args.scoring),
             }
         }
 
         // Keep only the solutions with the correct scoring method which
         // were submitted before the cutoff.
 
-        log.solutions.retain(|solution| solution.scoring == scoring);
+        log.solutions.retain(|solution| solution.scoring == args.scoring);
         log.solutions.retain(|solution| *solution.submitted <= *timestamp_cutoff);
 
         // Filter down to only each golfer's best submission. This gives
@@ -215,6 +226,19 @@ async fn main() -> Result<(), Box<dyn Error>> {
     };
 
     println!();
+
+    let closer_v1 = format!("{} vs {}", golfers[0], golfers[1]);
+    let closer_v2 = format!("{} v {}", golfers[0], golfers[1]);
+
+    let closer = if (closer_v1.len() - wdl_width) % 2 == 0 {
+        closer_v1
+    } else {
+        closer_v2
+    };
+
+    let closer_indent = (93 - closer.len()) / 2;
+    println!("{empty:closer_indent$}{LLGREY}{closer}{RESET}");
+
     println!();
     println!();
 
