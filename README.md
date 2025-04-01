@@ -11,7 +11,7 @@ That generates a report that looks like this (the numbers in parentheses are you
 
 ![A scoreboard comparing the performance of a golfer named "acotis" to a golfer named "JayXon". acotis has one win, JayXon has 77 wins, and there are 10 draws.](screenshot.png)
 
-To print a report based on how things stood at a particular moment in time (defaults to tomorrow's date, which generates a report that includes everything — see warnings below when using this flag ⚠️):
+To print a report based on how things stood on a particular day (defaults to today's date, which includes everything):
 
 ```
 cargo run acotis JayXon --lang rust --cutoff 2025-03-31
@@ -41,23 +41,34 @@ To include a third golfer's performance in the score bars as reference (can only
 cargo run acotis JayXon --lang rust --reference xnor-gate
 ```
 
+## Note about timestamps
+
+When you specify a cutoff timestamp **without a time**, the generated report includes solutions submitted through the **end** of the day, month, or year specified.
+
+When you specify a cutoff timestamp **with a time**, the generated report includes solutions submitted **up to** that time.
+
+For example:
+
+- `2025` will include everything submitted through the end of 2025.
+- `2025-03` will include everything submitted through the end of March 2025.
+- `2025-03-31` will include everything submitted through the end of March 31st, 2025.
+- `2025-03-31 12:00` will include everything submitted before March 31st, 2025 at 12:00:00.000000.
+- `2025-03-31 12:15` will include everything submitted before March 31st, 2025 at 12:15:00.000000.
+- `2025-03-31 12:15:17` will include everything submitted before March 31st, 2025 at 12:15:17.000000.
+
+This system is designed to try to align with human intuitions about what the phrase "as of [date]" means.
+
 # Warnings
 
 This script is poorly-written and I feel bad :)
 
 Generally speaking, you are on your own in terms of getting things right. If you specify a golfer that doesn't exist, you'll get an empty report. If you don't specify a language, it defaults to Rust. If you specify a `--hole-name-width` that's too narrow, the script will crash. If you specify a `--score-bar-width` that's too narrow, the script will crash. If you specify a `--lang` that doesn't exist, the script will hang, and then crash.
 
-⚠️ **The `--cutoff` date that you specify is not parsed into an actual timestamp; it is string-compared with dates given to me via code.golf's API.** That means that you need to be really careful or you will just get garbage. You won't get an error message explaining how you went wrong. Here are some examples of meaningful strings you can pass as cutoff dates:
-
-- `2025` — this considers all solutions that were submitted before the turn of the year 2025, because the string `2024-12-29T13:29:41.774046Z` compares as being less than the string `2025`, but `2025-01-01T02:06:59.015992Z` copares as being greater.
-- `2025-03` — this considers all solutions that were submitted before the turn of the month of March 2025.
-- `2025-03-01` — this has the same effect as `2025-03`.
-- `2025-03-31` — this considers all solutions that were submitted before the turn of midnight when it became 2025 March 31st.
-- `2025-04-01T18:25` — this considers all solutions that were submitted before the turn of the minute when it became 2025 April 1st at 18:25. **Note the "T" in the string.** This uses whatever time zone is used by code.golf's API, probably UTC or something.
+So, if you're getting results that don't look right, check your inputs carefully.
 
 # Known bugs
 
 This script has a known bug where it doesn't filter out solutions that have been deleted. Sometimes, a hole's submission judge will be made more strict in response to a cheese being discovered for that hole, and previously-existing solutions will be invalidated and removed from the site's leaderboard. **This script still considers those deleted solutions real**, because I couldn't figure out how to tell via the API whether a solution is still valid or not. This can affect how a hole is presented in the report, including which golfer "wins" it. If you know how to detect invalid solutions, feel free to make a PR.
 
-I don't know of any other bugs; feel free to submit a GitHub issue if you find one.
+Feel free to submit a GitHub issue if you find other bugs.
 
