@@ -66,7 +66,7 @@ struct Arguments {
     #[arg(short, long, default_value="rust")] lang: String,
     #[arg(short, long, default_value="bytes")] scoring: String,
     #[arg(short, long, default_value="current moment")] cutoff: String,
-    #[arg(       long, default_value="34")] hole_name_width: usize,
+    #[arg(       long, default_value="33")] hole_name_width: usize,
     #[arg(       long, default_value="20")] score_bar_width: usize,
 }
 
