@@ -1,0 +1,39 @@
+
+# Usage
+
+To generate a basic report comparing your performance to the other person's performance:
+
+```
+cargo run acotis JayXon --lang rust
+```
+
+To print a report based on how things stood at a particular moment in time (defaults to the moment you run the script — see warnings below):
+
+```
+cargo run acotis JayXon --lang rust --cutoff 2025-03-31
+```
+
+To use chars scoring (defaults to bytes otherwise):
+
+```
+cargo run acotis JayXon --lang rust --scoring chars
+```
+
+To make the score bars wider or thinner (defaults to 20 or 21 units, whichever makes it possible to center-align everything perfectly):
+
+```
+cargo run acotis JayXon --lang rust --score-bar-width 30
+```
+
+To leave more or less room for the hole names on the left side (defaults to 34 characters, which is just enough to accomodate the longest hole name while leaving a margin of 2 characters):
+
+```
+cargo run acotis JayXon --lang rust --hole-name-width 50
+```
+
+To include a third golfer's performance in the score bars (can only include one additional golfer beyond the two being compared, and stats for that golfer are not printed beyond their appearance in the score bar):
+
+```
+cargo run acotis JayXon --lang rust --reference xnor-gate
+```
+
