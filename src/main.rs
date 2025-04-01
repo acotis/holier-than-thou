@@ -2,8 +2,9 @@
 use std::fmt;
 use std::error::Error;
 use serde::{Serialize, Deserialize};
+use regex::Regex;
 use clap::Parser;
-use chrono::{Utc, Days};
+use chrono::{Utc};
 
 const BOLD:     &'static str = "\x1b[1m";
 const DIM:      &'static str = "\x1b[2m";
@@ -83,7 +84,46 @@ async fn main() -> Result<(), Box<dyn Error>> {
         golfers.push(reference);
     }
 
-    let cutoff = args.cutoff.unwrap_or((Utc::now() + Days::new(1)).format("%Y-%m-%d").to_string());
+    let mut cutoff = args.cutoff.unwrap_or(Utc::now().format("%Y-%m-%d").to_string());
+
+    // Validate the date just a little to make it not be a massive
+    // UI issue.
+
+    #[derive(PartialEq, Eq)]
+    enum CutoffType {IncludeEnd, ExcludeEnd}
+    use CutoffType::*;
+
+    let date_regexes = vec![
+        (IncludeEnd, Regex::new(r"^\d\d\d\d$").unwrap()),
+        (IncludeEnd, Regex::new(r"^\d\d\d\d-\d\d$").unwrap()),
+        (IncludeEnd, Regex::new(r"^\d\d\d\d-\d\d-\d\d$").unwrap()),
+        (ExcludeEnd, Regex::new(r"^\d\d\d\d-\d\d-\d\d \d\d:\d\d$").unwrap()),
+        (ExcludeEnd, Regex::new(r"^\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d$").unwrap()),
+        (ExcludeEnd, Regex::new(r"^\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d.\d+$").unwrap()),
+    ];
+
+    let date_format =
+        date_regexes
+            .iter()
+            .find(|(_cutoff_type, regex)| regex.is_match(&cutoff));
+
+    match date_format {
+        Some((cutoff_type, _)) => {
+            if *cutoff_type == IncludeEnd {
+                cutoff += "z";
+            }
+        },
+        None => {
+            println!("Invalid date format. Try a date in one of these formats:");
+            println!("    — 2025");
+            println!("    — 2025-03");
+            println!("    — 2025-03-31");
+            println!("    — 2025-03-31 12:15");
+            println!("    — 2025-03-31 12:15:29");
+            println!("    — 2025-03-31 12:15:29.185779");
+            return Ok(());
+        }
+    }
 
     // Get a list of all hole IDs via the API.
 
@@ -110,6 +150,25 @@ async fn main() -> Result<(), Box<dyn Error>> {
     )());
 
     let mut solution_logs = futures_util::future::join_all(futures).await;
+
+    // Debug.
+    
+    /*
+    let mut dates: Vec<String> = solution_logs.iter().flat_map(|log| log.solutions.iter().map(|sol| sol.submitted.to_owned())).collect();
+    
+    dates.push(cutoff.to_owned());
+    dates.sort();
+
+    for date in dates {
+        if date == cutoff {
+            println!("{date} ——————————————————————————————————————————————————————————");
+        } else {
+            println!("{date}");
+        }
+    }
+
+    return Ok(());
+    */
 
     // Process the data.
 
@@ -229,6 +288,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     // Compute more stuff for formatting.
 
+    cutoff = cutoff.replace("z", "");
+
     let empty  = "";
     let asof   = "as of";
     let indent = hole_name_width - (args.lang.len() + 1 + asof.chars().count() + 1 + cutoff.len());
@@ -291,7 +352,15 @@ async fn get_solution_log(lang: &str, hole_id: &str) -> Vec<Solution> {
         if !resp.status().is_success() {continue;}
         let text = resp.text().await.unwrap();
 
-        return serde_json::from_str(&text).expect("could not parse solution log");
+        let mut ret: Vec<Solution> = serde_json::from_str(&text).expect("could not parse solution log");
+
+        // Fix up the dates to look like "2025-03-31 12:15:17.129587".
+
+        for sol in &mut ret {
+            sol.submitted = sol.submitted.replace("T", " ").replace("Z", "");
+        }
+
+        return ret;
     }
 
     panic!("When fetching solutions log for hole \"{hole_id}\", the code.golf API gave a non-2XX status code for 10 attempts in a row. The code.golf API is a little unstable, so you might just try re-running the script.");
