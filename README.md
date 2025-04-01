@@ -1,11 +1,15 @@
 
 # Usage
 
-To generate a basic report comparing your performance to the other person's performance:
+To generate a basic report comparing your performance to another golfer's performance:
 
 ```
 cargo run acotis JayXon --lang rust
 ```
+
+That generates a report that looks like this:
+
+[screenshot.png]
 
 To print a report based on how things stood at a particular moment in time (defaults to the moment you run the script — see warnings below):
 
@@ -19,7 +23,7 @@ To use chars scoring (defaults to bytes otherwise):
 cargo run acotis JayXon --lang rust --scoring chars
 ```
 
-To make the score bars wider or thinner (defaults to 20 or 21 units, whichever makes it possible to center-align everything perfectly):
+To make the score bars wider or thinner (defaults to 20 characters, and the script will automatically adjust this value upwards by one character if it needs to to make everything perfectly center-aligned):
 
 ```
 cargo run acotis JayXon --lang rust --score-bar-width 30
