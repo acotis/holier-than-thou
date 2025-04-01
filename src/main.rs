@@ -188,7 +188,12 @@ async fn main() -> Result<(), Box<dyn Error>> {
         log.length_for(&golfers[1]) < usize::MAX
     );
 
-    // Sort by how well <me> is doing compared to them.
+    // Sort by how well <me> is doing compared to <them>, with a backup metric
+    // of how well I'm doing on an absolute scale.
+
+    solution_logs.sort_by_key(|log|
+        log.sort_score(&golfers[0])
+    );
 
     solution_logs.sort_by_key(|log|
         log.sort_score(&golfers[0]) as isize -
