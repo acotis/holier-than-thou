@@ -9,7 +9,7 @@ cargo run acotis JayXon --lang rust
 
 That generates a report that looks like this:
 
-[screenshot.png]
+![A scoreboard comparing the performance of a golfer named "acotis" to a golfer named "JayXon". acotis has one win, JayXon has 77 wins, and there are 10 draws.](screenshot.png)
 
 To print a report based on how things stood at a particular moment in time (defaults to the moment you run the script — see warnings below):
 
