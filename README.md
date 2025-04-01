@@ -7,7 +7,7 @@ To generate a basic report comparing your performance to another golfer's perfor
 cargo run acotis JayXon --lang rust
 ```
 
-That generates a report that looks like this:
+That generates a report that looks like this (the numbers in parentheses are your submission, their submission, and the gold):
 
 ![A scoreboard comparing the performance of a golfer named "acotis" to a golfer named "JayXon". acotis has one win, JayXon has 77 wins, and there are 10 draws.](screenshot.png)
 
