@@ -63,12 +63,12 @@ struct SolutionLog {
 struct Arguments {
     me: String,
     them: String,
-    #[arg(short, long)] reference: Option<String>,
-    #[arg(short, long, default_value="rust")] lang: String,
+    #[arg(short, long, default_value="rust" )] lang: String,
     #[arg(short, long, default_value="bytes")] scoring: String,
-    #[arg(short, long, default_value="current moment")] cutoff: String,
-    #[arg(       long, default_value="33")] hole_name_width: usize,
-    #[arg(       long, default_value="20")] score_bar_width: usize,
+    #[arg(short, long                       )] cutoff: Option<String>,
+    #[arg(short, long                       )] reference: Option<String>,
+    #[arg(       long, default_value="33"   )] hole_name_width: usize,
+    #[arg(       long, default_value="20"   )] score_bar_width: usize,
 }
 
 #[tokio::main]
@@ -76,16 +76,14 @@ async fn main() -> Result<(), Box<dyn Error>> {
     
     // Parse arguments.
 
-    let mut args = Arguments::parse();
+    let args = Arguments::parse();
     let mut golfers = vec![args.me, args.them];
 
     if let Some(reference) = args.reference {
         golfers.push(reference);
     }
 
-    if args.cutoff == "current moment" {
-        args.cutoff = (Utc::now() + Days::new(1)).format("%Y-%m-%d").to_string();
-    }
+    let cutoff = args.cutoff.unwrap_or((Utc::now() + Days::new(1)).format("%Y-%m-%d").to_string());
 
     // Get a list of all hole IDs via the API.
 
@@ -137,7 +135,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         // were submitted before the cutoff.
 
         log.solutions.retain(|solution| solution.scoring == args.scoring);
-        log.solutions.retain(|solution| *solution.submitted <= *args.cutoff);
+        log.solutions.retain(|solution| solution.submitted <= cutoff);
 
         // Filter down to only each golfer's best submission. This gives
         // us the submissions which were "active" at the cutoff time.
@@ -233,7 +231,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     let empty  = "";
     let asof   = "as of";
-    let indent = hole_name_width - (args.lang.len() + 1 + asof.chars().count() + 1 + args.cutoff.len());
+    let indent = hole_name_width - (args.lang.len() + 1 + asof.chars().count() + 1 + cutoff.len());
     let lcenter = (bar_width - wdl_width) / 2;
     let rcenter = ((bar_width - wdl_width) + 1) / 2;
 
@@ -264,7 +262,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     // Print the after-summary.
 
     println!();
-    print!("{empty:indent$}{ULINE}{LLGREY}{}{RESET} {LGREY}{asof}{RESET} {LLGREY}{ULINE}{}{RESET}  ", args.lang, args.cutoff);
+    print!("{empty:indent$}{ULINE}{LLGREY}{}{RESET} {LGREY}{asof}{RESET} {LLGREY}{ULINE}{}{RESET}  ", args.lang, cutoff);
     print!("{empty:lcenter$}{GREEN}{wins}{RESET} {LGREY}/{RESET} {LLLGREY}{draws}{RESET} {LGREY}/{RESET} {RED}{losses}{RESET}{empty:rcenter$}  ");
 
     match delta {
