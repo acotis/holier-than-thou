@@ -54,6 +54,8 @@ struct SolutionLog {
     gold_length: usize,
     golfers: Vec<String>,
     scoring: String,
+    hole_name_width: usize,
+    bar_width: usize,
 }
 
 #[derive(Parser)]
@@ -97,6 +99,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
             gold_length: usize::MAX,
             golfers: golfers.to_vec(),
             scoring: args.scoring.clone(),
+            bar_width: 0, // set later
+            hole_name_width: 0, // set later
         }
     )());
 
@@ -175,12 +179,14 @@ async fn main() -> Result<(), Box<dyn Error>> {
     println!();
     println!();
 
-    // Pretty printing.
+    // Keep only the holes for which both <me> and <them> have made submissions.
 
     solution_logs.retain(|log|
         log.length_for(&golfers[0]) < usize::MAX &&
         log.length_for(&golfers[1]) < usize::MAX
     );
+
+    // Sort by how well <me> is doing compared to them.
 
     solution_logs.sort_by_key(|log|
         log.sort_score(&golfers[0]) as isize -
@@ -189,11 +195,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     solution_logs.reverse();
 
-    for log in &solution_logs {
-        println!("{log}");
-    }
+    // Compute a bunch of stuff for formatting.
 
-    // Summary.
+    let hole_name_width = 34;
+    let mut bar_width = 29;
 
     let wins   = solution_logs.iter().filter(|log| log.length_for(&golfers[0]) <  log.length_for(&golfers[1])).count();
     let draws  = solution_logs.iter().filter(|log| log.length_for(&golfers[0]) == log.length_for(&golfers[1])).count();
@@ -202,13 +207,49 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let total  = wins + losses + draws;
 
     let num_len = |num: usize| if num > 0 {num.ilog(10) + 1} else {1};
+    let wdl_width = (num_len(wins) + num_len(draws) + num_len(losses) + 6) as usize;
+
+    // Stupid psychotic hack: make the scoring bar be 20 or 21 characters wide
+    // depending on the width of the W/D/L figure, so that it can be perfectly
+    // centered no matter what.
+
+    if (wdl_width as isize - bar_width as isize) % 2 != 0 {
+        bar_width -= 1;
+    }
+
+    // Compute more stuff for formatting.
 
     let empty  = "";
     let ssb    = "Summary as of";
-    let indent = 34 - (ssb.len() + 1 + args.cutoff.len());
-    let wdl_width = (num_len(wins) + num_len(draws) + num_len(losses) + 6) as usize;
-    let lcenter = (21 - wdl_width) / 2;
-    let rcenter = ((21 - wdl_width) + 1) / 2;
+    let indent = hole_name_width - (ssb.len() + 1 + args.cutoff.len());
+    let lcenter = (bar_width - wdl_width) / 2;
+    let rcenter = ((bar_width - wdl_width) + 1) / 2;
+
+    let names_v1 = format!("{} vs. {}", golfers[0], golfers[1]);
+    let names_v2 = format!("{} v. {}", golfers[0], golfers[1]);
+
+    let names = if (names_v1.len() - wdl_width) % 2 == 0 {
+        names_v1
+    } else {
+        names_v2
+    };
+
+    let names_indent = (hole_name_width * 2 + 4 + bar_width - names.len()) / 2;
+
+    // Give the SolutionLogs the formatting info they need.
+
+    for log in &mut solution_logs {
+        log.hole_name_width = hole_name_width;
+        log.bar_width = bar_width;
+    }
+
+    // Print the holes.
+
+    for log in &solution_logs {
+        println!("{log}");
+    }
+
+    // Print the after-summary.
 
     println!();
     print!("{empty:indent$}{LGREY}{ssb}{RESET} {LLGREY}{ULINE}{}{RESET}  ", args.cutoff);
@@ -221,19 +262,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     };
 
     println!();
-
-    let closer_v1 = format!("{} vs. {}", golfers[0], golfers[1]);
-    let closer_v2 = format!("{} v. {}", golfers[0], golfers[1]);
-
-    let closer = if (closer_v1.len() - wdl_width) % 2 == 0 {
-        closer_v1
-    } else {
-        closer_v2
-    };
-
-    let closer_indent = (93 - closer.len()) / 2;
-    println!("{empty:closer_indent$}{LLGREY}{closer}{RESET}");
-
+    println!("{empty:names_indent$}{LLGREY}{names}{RESET}");
     println!();
     println!();
 
@@ -260,9 +289,8 @@ async fn get_solution_log(lang: &str, hole_id: &str) -> Vec<Solution> {
 
 impl fmt::Display for SolutionLog {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{LLLLGREY}{:>34}{RESET}  ", self.hole_id)?;
+        write!(f, "{LLLLGREY}{:>1$}{RESET}  ", self.hole_id, self.hole_name_width)?;
 
-        let line_width = 20;
         let mut markers: Vec<(String, usize)> = vec![];
 
         for sol in &self.solutions {
@@ -272,7 +300,7 @@ impl fmt::Display for SolutionLog {
                 sol.golfer.chars().next().unwrap(),
             );
 
-            let mut shift = (sol.score / 1000.0 * line_width as f32) as usize;
+            let mut shift = (sol.score / 1000.0 * (self.bar_width-1) as f32) as usize;
             while markers.iter().any(|marker| marker.1 == shift) {
                 shift -= 1;
             }
@@ -280,7 +308,7 @@ impl fmt::Display for SolutionLog {
             markers.push((sigil, shift));
         }
 
-        for i in 0..line_width+1 {
+        for i in 0..self.bar_width {
             write!(
                 f, "{}",
                 markers.iter()
