@@ -51,7 +51,7 @@ Generally speaking, you are on your own in terms of getting things right. If you
 
 - `2025` — this considers all solutions that were submitted before the turn of the year 2025, because the string `2024-12-29T13:29:41.774046Z` compares as being less than the string `2025`, but `2025-01-01T02:06:59.015992Z` copares as being greater.
 - `2025-03` — this considers all solutions that were submitted before the turn of the month of March 2025.
-- `2025-03-01` — this has the same meaning as `2025-03`.
+- `2025-03-01` — this has the same effect as `2025-03`.
 - `2025-03-31` — this considers all solutions that were submitted before the turn of midnight when it became 2025 March 31st.
 - `2025-04-01T18:25` — this considers all solutions that were submitted before the turn of the minute when it became 2025 April 1st at 18:25. **Note the "T" in the string.** This uses whatever time zone is used by code.golf's API, probably UTC or something.
 - `current moment` (the default value) — this considers all solutions that have ever been submitted, because all numerical dates compare as being less than the string `current moment` due to the fact that this string starts with a "c" which is greater than any ASCII digit.
