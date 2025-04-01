@@ -67,9 +67,10 @@ struct Arguments {
     #[arg(short, long, default_value="rust" )] lang: String,
     #[arg(short, long, default_value="bytes")] scoring: String,
     #[arg(short, long                       )] cutoff: Option<String>,
-    #[arg(short, long                       )] reference: Option<String>,
+    #[arg(       long                       )] reference: Option<String>,
     #[arg(       long, default_value="33"   )] hole_name_width: usize,
     #[arg(       long, default_value="20"   )] score_bar_width: usize,
+    #[arg(short, long                       )] reverse: bool,
 }
 
 #[tokio::main]
@@ -262,7 +263,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
         log.sort_score(&golfers[1]) as isize
     );
 
-    solution_logs.reverse();
+    if !args.reverse {
+        solution_logs.reverse();
+    }
 
     // Compute a bunch of stuff for formatting.
 

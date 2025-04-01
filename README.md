@@ -41,6 +41,12 @@ To include a third golfer's performance in the score bars as reference (can only
 cargo run acotis JayXon --lang rust --reference xnor-gate
 ```
 
+To reverse the order of the holes in the report:
+
+```
+cargo run acotis JayXon --lang rust --reverse
+```
+
 ## Note about timestamps
 
 When you specify a cutoff timestamp **without a time**, the generated report includes solutions submitted through the **end** of the day, month, or year specified.
