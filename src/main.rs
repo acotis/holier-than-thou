@@ -312,7 +312,7 @@ impl fmt::Display for SolutionLog {
 
             let mut shift = (sol.score / 1000.0 * (self.bar_width-1) as f32) as usize;
             while markers.iter().any(|marker| marker.1 == shift) {
-                shift += 1;
+                shift -= 1;
             }
 
             markers.push((sigil, shift));
