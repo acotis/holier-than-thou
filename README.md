@@ -56,7 +56,9 @@ Generally speaking, you are on your own in terms of getting things right. If you
 - `2025-04-01T18:25` — this considers all solutions that were submitted before the turn of the minute when it became 2025 April 1st at 18:25. **Note the "T" in the string.** This uses whatever time zone is used by code.golf's API, probably UTC or something.
 - `current moment` (the default value) — this considers all solutions that have ever been submitted, because all numerical dates compare as being less than the string `current moment` due to the fact that this string starts with a "c" which is greater than any ASCII digit.
 
-# Known bug
+# Known bugs
 
-This script has a known bug where it doesn't filter out solutions that have been deleted. Sometimes, a hole's scoring judge will be made more strict after a cheese is discovered, and previously-existing solutions will be invalidated and removed from the site's leaderboard. **This script still presents those solutions as existing**, because I couldn't figure out how to tell via the API whether a solution is still valid or not. If you know how, feel free to make a PR.
+This script has a known bug where it doesn't filter out solutions that have been deleted. Sometimes, a hole's submission judge will be made more strict in response to a cheese being discovered for that hole, and previously-existing solutions will be invalidated and removed from the site's leaderboard. **This script still considers those deleted solutions real**, because I couldn't figure out how to tell via the API whether a solution is still valid or not. This can affect how a hole is presented in the report, including which golfer "wins" it. If you know how to detect invalid solutions, feel free to make a PR.
+
+I don't know of any other bugs; feel free to submit a GitHub issue if you find one.
 
