@@ -11,7 +11,7 @@ That generates a report that looks like this (the numbers in parentheses are you
 
 ![A scoreboard comparing the performance of a golfer named "acotis" to a golfer named "JayXon". acotis has one win, JayXon has 77 wins, and there are 10 draws.](screenshot.png)
 
-To print a report based on how things stood on a particular day (defaults to today's date, which includes everything):
+To generate a report based on how things stood on a particular day (defaults to today's date, which includes everything):
 
 ```
 cargo run acotis JayXon --lang rust --cutoff 2025-03-31
