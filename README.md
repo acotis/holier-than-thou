@@ -23,7 +23,7 @@ To use chars scoring (defaults to bytes otherwise):
 cargo run acotis JayXon --lang rust --scoring chars
 ```
 
-To make the score bars wider or thinner (defaults to 20 characters, and the script will automatically adjust this value upwards by one character if it needs to to make everything perfectly center-aligned):
+To make the score bars wider or narrower (defaults to 20 characters, and the script will automatically adjust this value upwards by one character if it needs to to make everything perfectly center-aligned):
 
 ```
 cargo run acotis JayXon --lang rust --score-bar-width 30
