@@ -29,7 +29,7 @@ To make the score bars wider or thinner (defaults to 20 characters, and the scri
 cargo run acotis JayXon --lang rust --score-bar-width 30
 ```
 
-To leave more or less room for the hole names on the left side (defaults to 34 characters, which is just enough room to accomodate the longest hole name while leaving a margin of 2 characters):
+To leave more or less room for the hole names on the left side (defaults to 34 characters, which is just enough room to accommodate the longest hole name while leaving a margin of 2 characters):
 
 ```
 cargo run acotis JayXon --lang rust --hole-name-width 50
