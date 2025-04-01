@@ -41,7 +41,7 @@ cargo run acotis JayXon --lang rust --reference xnor-gate
 
 This script is poorly-written and I feel bad :)
 
-Generally speaking, you are on your own in terms of getting things right. If you specify a golfer that doesn't exist, you'll get an empty report instead of an enlightening error message. If you specify a `--hole-name-width` that's too narrow, the script will crash. If you specify a `--score-bar-width` that's too narrow, the script will crash. If you specify a `--lang` that doesn't exist, the script will hang, and then crash.
+Generally speaking, you are on your own in terms of getting things right. If you specify a golfer that doesn't exist, you'll get an empty report. If you don't specify a language, it defaults to Rust. If you specify a `--hole-name-width` that's too narrow, the script will crash. If you specify a `--score-bar-width` that's too narrow, the script will crash. If you specify a `--lang` that doesn't exist, the script will hang, and then crash.
 
 ⚠️ **The `--cutoff` date that you specify is not parsed into an actual timestamp; it is string-compared with dates given to me via code.golf's API.** That means that you need to be really careful or you will just get garbage. You won't get an error message explaining how you went wrong. Here are some examples of meaningful strings you can pass as cutoff dates:
 
