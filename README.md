@@ -35,7 +35,7 @@ To leave more or less room for the hole names on the left side (defaults to 34 c
 cargo run acotis JayXon --lang rust --hole-name-width 50
 ```
 
-To include a third golfer's performance in the score bars (can only include one additional golfer beyond the two being compared, and stats for that golfer are not printed beyond their appearance in the score bar):
+To include a third golfer's performance in the score bars as reference (can only include one additional golfer beyond the two being compared, and stats for that golfer are not printed beyond their appearance in the score bar):
 
 ```
 cargo run acotis JayXon --lang rust --reference xnor-gate
