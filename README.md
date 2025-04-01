@@ -11,7 +11,7 @@ That generates a report that looks like this:
 
 ![A scoreboard comparing the performance of a golfer named "acotis" to a golfer named "JayXon". acotis has one win, JayXon has 77 wins, and there are 10 draws.](screenshot.png)
 
-To print a report based on how things stood at a particular moment in time (defaults to the moment you run the script — see warnings below):
+To print a report based on how things stood at a particular moment in time (defaults to the moment you run the script — see warnings below ⚠️):
 
 ```
 cargo run acotis JayXon --lang rust --cutoff 2025-03-31
