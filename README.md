@@ -9,7 +9,7 @@ cargo run acotis JayXon --lang rust
 
 That generates a report that looks like this (the numbers in parentheses are your submission's length, their submission's length, and the gold for that hole):
 
-![A scoreboard comparing the performance of a golfer named "acotis" to a golfer named "JayXon". acotis has one win, JayXon has 77 wins, and there are 10 draws.](screenshot.png)
+![A scoreboard comparing the performance of a golfer named "acotis" to a golfer named "JayXon". acotis has one win, JayXon has 77 wins, and there are 10 draws.](screenshot.png?)
 
 To print a report based on how things stood at a particular moment in time (defaults to tomorrow's date, which generates a report that includes everything — see warnings below when using this flag ⚠️):
 
