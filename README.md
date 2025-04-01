@@ -7,11 +7,11 @@ To generate a basic report comparing your performance to another golfer's perfor
 cargo run acotis JayXon --lang rust
 ```
 
-That generates a report that looks like this (the numbers in parentheses are your submission, their submission, and the gold):
+That generates a report that looks like this (the numbers in parentheses are your submission's length, their submission's length, and the gold for that hole):
 
 ![A scoreboard comparing the performance of a golfer named "acotis" to a golfer named "JayXon". acotis has one win, JayXon has 77 wins, and there are 10 draws.](screenshot.png)
 
-To print a report based on how things stood at a particular moment in time (defaults to the moment you run the script — see warnings below when using this flag ⚠️):
+To print a report based on how things stood at a particular moment in time (defaults to tomorrow's date, which generates a report that includes everything — see warnings below when using this flag ⚠️):
 
 ```
 cargo run acotis JayXon --lang rust --cutoff 2025-03-31
@@ -54,7 +54,6 @@ Generally speaking, you are on your own in terms of getting things right. If you
 - `2025-03-01` — this has the same effect as `2025-03`.
 - `2025-03-31` — this considers all solutions that were submitted before the turn of midnight when it became 2025 March 31st.
 - `2025-04-01T18:25` — this considers all solutions that were submitted before the turn of the minute when it became 2025 April 1st at 18:25. **Note the "T" in the string.** This uses whatever time zone is used by code.golf's API, probably UTC or something.
-- `current moment` (the default value) — this considers all solutions that have ever been submitted, because all numerical dates compare as being less than the string `current moment` due to the fact that this string starts with a "c" which is greater than any ASCII digit.
 
 # Known bugs
 
