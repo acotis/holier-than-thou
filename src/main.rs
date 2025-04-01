@@ -66,6 +66,8 @@ struct Arguments {
     #[arg(short, long, default_value="rust")] lang: String,
     #[arg(short, long, default_value="bytes")] scoring: String,
     #[arg(short, long, default_value="current moment")] cutoff: String,
+    #[arg(       long, default_value="34")] hole_name_width: usize,
+    #[arg(       long, default_value="20")] score_bar_width: usize,
 }
 
 #[tokio::main]
@@ -197,8 +199,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     // Compute a bunch of stuff for formatting.
 
-    let hole_name_width = 34;
-    let mut bar_width = 29;
+    let hole_name_width = args.hole_name_width;
+    let mut bar_width = args.score_bar_width;
 
     let wins   = solution_logs.iter().filter(|log| log.length_for(&golfers[0]) <  log.length_for(&golfers[1])).count();
     let draws  = solution_logs.iter().filter(|log| log.length_for(&golfers[0]) == log.length_for(&golfers[1])).count();
@@ -302,7 +304,7 @@ impl fmt::Display for SolutionLog {
 
             let mut shift = (sol.score / 1000.0 * (self.bar_width-1) as f32) as usize;
             while markers.iter().any(|marker| marker.1 == shift) {
-                shift -= 1;
+                shift += 1;
             }
 
             markers.push((sigil, shift));
