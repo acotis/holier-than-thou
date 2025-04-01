@@ -280,7 +280,7 @@ async fn get_solution_log(lang: &str, hole_id: &str) -> Vec<Solution> {
     let url = format!(
         "http://code.golf/api/solutions-log?hole={}&lang={}",
         urlencoding::encode(hole_id),
-        lang,
+        urlencoding::encode(lang),
     );
 
     for _attempt in 0..10 {
