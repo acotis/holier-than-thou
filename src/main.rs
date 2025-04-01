@@ -211,9 +211,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let num_len = |num: usize| if num > 0 {num.ilog(10) + 1} else {1};
     let wdl_width = (num_len(wins) + num_len(draws) + num_len(losses) + 6) as usize;
 
-    // Stupid psychotic hack: make the scoring bar be 20 or 21 characters wide
-    // depending on the width of the W/D/L figure, so that it can be perfectly
-    // centered no matter what.
+    // Stupid psychotic hack: fiddle with the width of the scoring bar based
+    // on the width of the W/D/L figure, so that it can be perfectly centered
+    // no matter what.
 
     if (wdl_width as isize - bar_width as isize) % 2 != 0 {
         bar_width -= 1;
