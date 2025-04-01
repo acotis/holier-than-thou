@@ -41,15 +41,15 @@ cargo run acotis JayXon --lang rust --reference xnor-gate
 
 This script is poorly-written and I feel bad :)
 
-Generally speaking, you are on your own in terms of getting things right. If you specify a golfer that doesnsn't exist, you'll get an empty report instead of an enlightening error message. If you specify a `--hole-name-width` that's too small, the script will crash. If you specify a `--score-bar-width` that's too small, the script will crash. If you specify a `--lang` that doesn't exist, the script will hang, and then crash.
+Generally speaking, you are on your own in terms of getting things right. If you specify a golfer that doesn't exist, you'll get an empty report instead of an enlightening error message. If you specify a `--hole-name-width` that's too narrow, the script will crash. If you specify a `--score-bar-width` that's too narrow, the script will crash. If you specify a `--lang` that doesn't exist, the script will hang, and then crash.
 
-**The `--cutoff` date that you specify is not parsed into an actual timestamp; it is string-compared with dates given to me via code.golf's API.** That means that you need to be really careful or you will just get garbage. Here are some examples of meaningful strings you can pass as the cutoff date:
+⚠️ **The `--cutoff` date that you specify is not parsed into an actual timestamp; it is string-compared with dates given to me via code.golf's API.** That means that you need to be really careful or you will just get garbage. You won't get an error message explaining how you went wrong. Here are some examples of meaningful strings you can pass as cutoff dates:
 
-- `2025` — this considers all solutions that were submitted before the turn of the year 2025, because the string "2024-12-29T13:29:41.774046Z" compares as being less than the string "2025", but "2025-01-01T02:06:59.015992Z" copares as being greater.
+- `2025` — this considers all solutions that were submitted before the turn of the year 2025, because the string `2024-12-29T13:29:41.774046Z` compares as being less than the string `2025`, but `2025-01-01T02:06:59.015992Z` copares as being greater.
 - `2025-03` — this considers all solutions that were submitted before the turn of the month of March 2025.
-- `2025-03-01` — this has the same meaning as "2025-03".
+- `2025-03-01` — this has the same meaning as `2025-03`.
 - `2025-03-31` — this considers all solutions that were submitted before the turn of midnight when it became 2025 March 31st.
-- `current moment` (the default value) — this considers all solutions that have ever been submitted, because all numerical dates compare as being less than the string "current moment" due to the fact that this string starts with a "c" which is greater than any ASCII digit.
+- `current moment` (the default value) — this considers all solutions that have ever been submitted, because all numerical dates compare as being less than the string `current moment` due to the fact that this string starts with a "c" which is greater than any ASCII digit.
 
 # Known bug
 
