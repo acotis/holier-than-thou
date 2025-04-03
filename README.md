@@ -1,7 +1,7 @@
 
 # Description
 
-This tool generates head-to-head performance reports for comparing two users' submissions to [code.golf](https://code.golf/). The reports look like this:
+This tool generates head-to-head performance reports for comparing two users' standings on [code.golf](https://code.golf/). The reports look like this:
 
 ![A scoreboard comparing the performance of a golfer named "acotis" to a golfer named "JayXon". acotis has one win, JayXon has 77 wins, and there are 10 draws.](screenshot.png)
 
