@@ -1,50 +1,52 @@
 
 # Usage
 
-To generate a basic report comparing your performance to another golfer's performance:
+To generate a basic report comparing your performance to another golfer's performance, download this repository and run the following command (if you are on Windows, type `./holier.exe` instead of `./holier`):
 
 ```
-cargo run acotis JayXon --lang rust
+./holier acotis JayXon --lang rust
 ```
 
-That generates a report that looks like this (the numbers in parentheses are your submission's length, their submission's length, and the gold for that hole):
+That generates a report that looks like this:
 
 ![A scoreboard comparing the performance of a golfer named "acotis" to a golfer named "JayXon". acotis has one win, JayXon has 77 wins, and there are 10 draws.](screenshot.png)
+
+The numbers in parentheses are your submission's length, their submission's length, and the gold for that hole.
 
 To generate a report based on how things stood on a particular day (defaults to today's date, which includes everything):
 
 ```
-cargo run acotis JayXon --lang rust --cutoff 2025-03-31
+./holier acotis JayXon --lang rust --cutoff 2025-03-31
 ```
 
 To use chars scoring (defaults to bytes otherwise):
 
 ```
-cargo run acotis JayXon --lang rust --scoring chars
+./holier acotis JayXon --lang rust --scoring chars
 ```
 
 To make the score bars wider or narrower (defaults to 20 characters, and the script will automatically adjust this value upwards by one character if it needs to do so to perfectly center-align everything):
 
 ```
-cargo run acotis JayXon --lang rust --score-bar-width 30
+./holier acotis JayXon --lang rust --score-bar-width 30
 ```
 
 To leave more or less room for the hole names on the left side (defaults to 33 characters, which is just enough room to accommodate the longest hole name while leaving a margin of 1 character to the left):
 
 ```
-cargo run acotis JayXon --lang rust --hole-name-width 50
+./holier acotis JayXon --lang rust --hole-name-width 50
 ```
 
 To include a third golfer's performance in the score bars as reference (can only include one additional golfer beyond the two being compared, and stats for that golfer are not printed beyond their appearance in the score bar):
 
 ```
-cargo run acotis JayXon --lang rust --reference xnor-gate
+./holier acotis JayXon --lang rust --reference xnor-gate
 ```
 
 To reverse the order of the holes in the report:
 
 ```
-cargo run acotis JayXon --lang rust --reverse
+./holier acotis JayXon --lang rust --reverse
 ```
 
 ## Note about timestamps
