@@ -14,7 +14,9 @@ const RED:      &'static str = "\x1b[31m";
 const BROWN:    &'static str = "\x1b[38;5;130m";
 const BLUE:     &'static str = "\x1b[36m";
 const GREY:     &'static str = "\x1b[38;5;236m";
+const MGREY:    &'static str = "\x1b[38;5;238m";
 const LGREY:    &'static str = "\x1b[38;5;240m";
+const MLGREY:   &'static str = "\x1b[38;5;242m";
 const LLGREY:   &'static str = "\x1b[38;5;244m";
 const LLLGREY:  &'static str = "\x1b[38;5;252m";
 const LLLLGREY: &'static str = "\x1b[38;5;254m";
@@ -330,10 +332,12 @@ async fn main() -> Result<(), Box<dyn Error>> {
     print!("{empty:lcenter$}{GREEN}{wins}{RESET} {LGREY}/{RESET} {LLLGREY}{draws}{RESET} {LGREY}/{RESET} {RED}{losses}{RESET}{empty:rcenter$}  ");
 
     match delta {
-        1..   => print!("{BOLD}{RED}+{delta} loss{}{RESET} {LGREY}({total} holes){RESET}", if delta.abs() > 1 {"es"} else {"!"}),
-        0     => print!("Tie!! {LGREY}({total} holes){RESET}"),
-        ..=-1 => print!("{BOLD}{GREEN}+{} win{}!!!{RESET} {LGREY}({total} holes){RESET}", -delta, if delta.abs() > 1 {"s!"} else {""}),
+        1..   => print!("{BOLD}{RED}+{delta} loss{}{RESET}", if delta.abs() > 1 {"es"} else {"!"}),
+        0     => print!("Tie!!"),
+        ..=-1 => print!("{BOLD}{GREEN}+{} win{}!!!{RESET}", -delta, if delta.abs() > 1 {"s!"} else {""}),
     };
+
+    print!(" {MLGREY}({total} holes){RESET}");
 
     println!();
     println!("{empty:names_indent$}{LLGREY}{names}{RESET}");
@@ -404,11 +408,11 @@ impl fmt::Display for SolutionLog {
         match delta {
             ..0 => write!(f, "  {DIM}{GREEN}{delta} {}{}{RESET}", &self.scoring[..4], if delta.abs() > 1 {"s"} else {""})?,
             1.. => write!(f, "  {DIM}{RED}+{delta} {}{}{RESET}",  &self.scoring[..4], if delta.abs() > 1 {"s"} else {""})?,
-             0  => write!(f, "  {LGREY}Tie{RESET}")?,
+             0  => write!(f, "  {MLGREY}Tie{RESET}")?,
         };
 
         write!(
-            f, " {GREY}({}-{}|{}){RESET}",
+            f, " {MGREY}({}-{}|{}){RESET}",
             self.length_for(&self.golfers[0]),
             self.length_for(&self.golfers[1]),
             self.gold_length,
