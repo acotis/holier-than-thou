@@ -1,17 +1,19 @@
 
+# Description
+
+This tool generates head-to-head performance reports for comparing two users' submissions to [code.golf](https://code.golf/). The reports look like this:
+
+![A scoreboard comparing the performance of a golfer named "acotis" to a golfer named "JayXon". acotis has one win, JayXon has 77 wins, and there are 10 draws.](screenshot.png)
+
+Each line lists a hole title, a score bar approximating your score and theirs (out of 1000 points), and the number of bytes shorter or longer your solution is than theirs. In parentheses, it displays your solution's length, their solution's length, and the length of the shortest solution for that hole (the gold).
+
 # Usage
 
-To generate a basic report comparing your performance to another golfer's performance, download this repository and run the following command (if you are on Windows, type `./holier.exe` instead of `./holier`):
+To generate a report like the one above, download the file `holier` (for Linux) or `holier.exe` (for Windows) and run this command:
 
 ```
 ./holier acotis JayXon --lang rust
 ```
-
-That generates a report that looks like this:
-
-![A scoreboard comparing the performance of a golfer named "acotis" to a golfer named "JayXon". acotis has one win, JayXon has 77 wins, and there are 10 draws.](screenshot.png)
-
-The numbers in parentheses are your submission's length, their submission's length, and the gold for that hole.
 
 To generate a report based on how things stood on a particular day (defaults to today's date, which includes everything):
 
@@ -51,7 +53,7 @@ To reverse the order of the holes in the report:
 
 ## Note about timestamps
 
-When you specify a cutoff timestamp **without a time**, the generated report includes solutions submitted through the **end** of the day, month, or year specified.
+When you specify a cutoff timestamp **without a time**, the generated report includes solutions submitted through the **end** of the year, month, or day specified.
 
 When you specify a cutoff timestamp **with a time**, the generated report includes solutions submitted **up to** that time.
 
