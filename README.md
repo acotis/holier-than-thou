@@ -15,7 +15,7 @@ To generate a report like the one above, download the file `holier` (for Linux) 
 ./holier acotis JayXon --lang rust
 ```
 
-To generate a report based on how things stood on a particular day (defaults to today's date, which includes everything):
+To generate a report based on how things stood on a particular day (defaults to today's date):
 
 ```
 ./holier acotis JayXon --lang rust --cutoff 2025-03-31
@@ -78,7 +78,7 @@ So, if you're getting results that don't look right, check your inputs carefully
 
 # Known bugs
 
-This script has a known bug where it doesn't filter out solutions that have been deleted. Sometimes, a hole's submission judge will be made more strict in response to a cheese being discovered for that hole, and previously-existing solutions will be invalidated and removed from the site's leaderboard. **This script still considers those deleted solutions real**, because I couldn't figure out how to tell via the API whether a solution is still valid or not. This can affect how a hole is presented in the report, including which golfer "wins" it. If you know how to detect invalid solutions, feel free to make a PR.
+This script has a known bug where, when using the `--cutoff` flag, the report may include solutions that have been invalidated or deleted. (Sometimes, a hole's submission judge will be made more strict in response to a cheese being discovered for that hole, and previously-existing solutions will be invalidated and removed from the site's leaderboard. Or, a golfer may simply choose to delete one of their solutions.) This bug occurs because code.golf's API offers precisely correct up-to-date data for the current moment, but only roughly correct historical data for the past. The historical data it provides does not include enough information to determine when a solution was invalidated/deleted and therefore at what cutoff it should be excluded from the report. Reports for the current moment are accurate because the API does provide a way to retrieve only those submissions which are currently valid and a golfer's best submission for that hole to date. **This all means that reports generated using the --cutoff flag may mis-report the number of "wins" and "losses" each player has.**
 
 Feel free to submit a GitHub issue if you find other bugs.
 
