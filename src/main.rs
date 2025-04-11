@@ -11,6 +11,7 @@ const DIM:      &'static str = "\x1b[2m";
 const ULINE:    &'static str = "\x1b[4m";
 const GREEN:    &'static str = "\x1b[32m";
 const RED:      &'static str = "\x1b[31m";
+const YELLOW:   &'static str = "\x1b[33m";
 const BROWN:    &'static str = "\x1b[38;5;130m";
 const BLUE:     &'static str = "\x1b[36m";
 const GREY:     &'static str = "\x1b[38;5;236m";
@@ -87,6 +88,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         golfers.push(reference);
     }
 
+    let cutoff_provided = args.cutoff.is_some();
     let mut cutoff = args.cutoff.unwrap_or(Utc::now().format("%Y-%m-%d").to_string());
 
     // Validate the date just a little to make it not be a massive
@@ -139,12 +141,15 @@ async fn main() -> Result<(), Box<dyn Error>> {
     // Collect the full solutions log for each hole in the selected language.
 
     println!("Fetching solution log for each hole (this will take several seconds)...");
-    println!("{RED}{BOLD}Using new paradigm; the --cutoff flag is ignored.{RESET}");
+
+    if cutoff_provided {
+        println!("{YELLOW}Warning:{RESET} historical reports generated using the --cutoff flag may include deleted and invalidated solutions");
+    }
 
     let futures = holes.iter().map(|hole| (async || 
         SolutionLog {
             hole_id: hole.id.clone(), 
-            solutions: get_solution_log(&args.lang, &hole.id).await,
+            solutions: get_solution_log(!cutoff_provided, &args.lang, &hole.id).await,
             gold_length: usize::MAX,
             golfers: golfers.to_vec(),
             scoring: args.scoring.clone(),
@@ -348,13 +353,20 @@ async fn main() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-async fn get_solution_log(lang: &str, hole_id: &str) -> Vec<Solution> {
-    let url = format!(
-        //"http://code.golf/api/solutions-log?hole={}&lang={}",
-        "http://code.golf/scores/{}/{}/all",
-        urlencoding::encode(hole_id),
-        urlencoding::encode(lang),
-    );
+async fn get_solution_log(clean_api: bool, lang: &str, hole_id: &str) -> Vec<Solution> {
+    let url = if clean_api {
+        format!(
+            "http://code.golf/scores/{}/{}/all",
+            urlencoding::encode(hole_id),
+            urlencoding::encode(lang),
+        )
+    } else {
+        format!(
+            "http://code.golf/api/solutions-log?hole={}&lang={}",
+            urlencoding::encode(hole_id),
+            urlencoding::encode(lang),
+        )
+    };
 
     for _attempt in 0..10 {
         let resp = reqwest::get(&url).await.unwrap();
