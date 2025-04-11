@@ -300,10 +300,11 @@ async fn main() -> Result<(), Box<dyn Error>> {
     // Compute more stuff for formatting.
 
     cutoff = cutoff.replace("z", "");
+    let asterisk = if cutoff_provided {"*"} else {""};
 
     let empty  = "";
     let asof   = "as of";
-    let indent = hole_name_width - (args.lang.len() + 1 + asof.chars().count() + 1 + cutoff.len());
+    let indent = hole_name_width - (args.lang.len() + 1 + asof.chars().count() + 1 + cutoff.len() + asterisk.len());
     let lcenter = (bar_width - wdl_width) / 2;
     let rcenter = ((bar_width - wdl_width) + 1) / 2;
 
@@ -334,7 +335,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     // Print the after-summary.
 
     println!();
-    print!("{empty:indent$}{ULINE}{LLGREY}{}{RESET} {LGREY}{asof}{RESET} {LLGREY}{ULINE}{}{RESET}  ", args.lang, cutoff);
+    print!("{empty:indent$}{ULINE}{LLGREY}{}{RESET} {LGREY}{asof}{RESET} {LLGREY}{ULINE}{}{RESET}{LLGREY}{asterisk}{RESET}  ", args.lang, cutoff);
     print!("{empty:lcenter$}{GREEN}{wins}{RESET} {LGREY}/{RESET} {LLLGREY}{draws}{RESET} {LGREY}/{RESET} {RED}{losses}{RESET}{empty:rcenter$}  ");
 
     match delta {
