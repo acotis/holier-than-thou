@@ -41,7 +41,7 @@ struct HoleLink {
 struct Solution {
     bytes: usize,
     chars: usize,
-    golfer: String,
+    #[serde(alias = "login")] golfer: String,
     hole: String,
     lang: String,
     scoring: String,
@@ -139,6 +139,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     // Collect the full solutions log for each hole in the selected language.
 
     println!("Fetching solution log for each hole (this will take several seconds)...");
+    println!("{RED}{BOLD}Using new paradigm; the --cutoff flag is ignored.{RESET}");
 
     let futures = holes.iter().map(|hole| (async || 
         SolutionLog {
@@ -349,7 +350,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
 async fn get_solution_log(lang: &str, hole_id: &str) -> Vec<Solution> {
     let url = format!(
-        "http://code.golf/api/solutions-log?hole={}&lang={}",
+        //"http://code.golf/api/solutions-log?hole={}&lang={}",
+        "http://code.golf/scores/{}/{}/all",
         urlencoding::encode(hole_id),
         urlencoding::encode(lang),
     );
