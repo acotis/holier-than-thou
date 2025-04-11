@@ -5,7 +5,7 @@ This tool generates head-to-head performance reports for comparing two users' st
 
 ![A scoreboard comparing the performance of a golfer named "acotis" to a golfer named "JayXon". acotis has one win, JayXon has 77 wins, and there are 10 draws.](screenshot.png)
 
-Each line lists a hole title, a score bar approximating your score and theirs (out of 1000 points), and the number of bytes shorter or longer your solution is than theirs. In parentheses, it displays your solution's length, their solution's length, and the length of the shortest solution for that hole (the gold).
+Each line lists a hole title, a score bar approximating your score and their score (out of 1000 points), and the number of bytes shorter or longer your solution is compared to theirs. In parentheses, it displays your solution's length, their solution's length, and the length of the shortest solution for that hole (the gold).
 
 # Usage
 
@@ -27,7 +27,7 @@ To use chars scoring (defaults to bytes otherwise):
 ./holier acotis JayXon --lang rust --scoring chars
 ```
 
-To make the score bars wider or narrower (defaults to 20 characters, and the script will automatically adjust this value upwards by one character if it needs to do so to perfectly center-align everything):
+To make the score bars wider or narrower (defaults to 20 characters, and the script will automatically adjust the width upwards by one character if it needs to do so to perfectly center-align everything):
 
 ```
 ./holier acotis JayXon --lang rust --score-bar-width 30
