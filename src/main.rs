@@ -69,7 +69,7 @@ struct Arguments {
     them: String,
     #[arg(short, long, default_value="rust" )] lang: String,
     #[arg(short, long, default_value="bytes")] scoring: String,
-    #[arg(short, long                       )] cutoff: Option<String>,
+    #[arg(short, long                       )] as_of: Option<String>,
     #[arg(       long                       )] reference: Option<String>,
     #[arg(       long, default_value="33"   )] hole_name_width: usize,
     #[arg(       long, default_value="20"   )] score_bar_width: usize,
@@ -88,8 +88,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
         golfers.push(reference);
     }
 
-    let cutoff_provided = args.cutoff.is_some();
-    let mut cutoff = args.cutoff.unwrap_or(Utc::now().format("%Y-%m-%d").to_string());
+    let cutoff_provided = args.as_of.is_some();
+    let mut cutoff = args.as_of.unwrap_or(Utc::now().format("%Y-%m-%d").to_string());
 
     // Validate the date just a little to make it not be a massive
     // UI issue.
@@ -143,7 +143,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     println!("Fetching solution log for each hole (this will take several seconds)...");
 
     if cutoff_provided {
-        println!("{YELLOW}Warning:{RESET} historical reports generated using the --cutoff flag may include deleted and invalidated solutions");
+        println!("{YELLOW}Warning:{RESET} historical reports generated using the --as-of flag may include deleted and invalidated solutions");
     }
 
     let futures = holes.iter().map(|hole| (async || 
