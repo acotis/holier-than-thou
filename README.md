@@ -66,7 +66,7 @@ For example:
 - `2025-03-31 12:15` will include everything submitted before March 31st, 2025 at 12:15:00.000000.
 - `2025-03-31 12:15:17` will include everything submitted before March 31st, 2025 at 12:15:17.000000.
 
-This system is designed to try to align with human intuitions about what the phrase "as of [date]" means.
+This system is designed to try to align with human intuitions about what the phrase "as of [date/time]" means.
 
 # Warnings
 
