@@ -419,11 +419,14 @@ impl fmt::Display for SolutionLog {
             )?;
         }
 
-        let delta = self.length_for(&self.golfers[0]) as isize - self.length_for(&self.golfers[1]) as isize;
+        let len_0 = self.length_for(&self.golfers[0]);
+        let len_1 = self.length_for(&self.golfers[1]);
+        let delta = len_0 as isize - len_1 as isize;
+
         match delta {
             ..0 => write!(f, "  {DIM}{GREEN}{delta} {}{}{RESET}", &self.scoring[..4], if delta.abs() > 1 {"s"} else {""})?,
             1.. => write!(f, "  {DIM}{RED}+{delta} {}{}{RESET}",  &self.scoring[..4], if delta.abs() > 1 {"s"} else {""})?,
-             0  => write!(f, "  {MLGREY}Tie{RESET}")?,
+             0  => write!(f, "  {MLGREY}Tie{}{RESET}", if len_0 == self.gold_length {"d gold"} else {""})?,
         };
 
         write!(
