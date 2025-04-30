@@ -42,7 +42,7 @@ To leave more or less room for the hole names on the left side (defaults to 33 c
 To include a third golfer's performance in the score bars as reference (can only include one additional golfer beyond the two being compared, and stats for that golfer are not printed beyond their appearance in the score bar):
 
 ```
-./holier acotis DialFrost --lang rust --reference xnor-gate
+./holier acotis DialFrost --lang rust --reference JayXon
 ```
 
 To reverse the order of the holes in the report:
