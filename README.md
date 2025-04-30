@@ -3,7 +3,7 @@
 
 This tool generates head-to-head performance reports for comparing two users' standings on [code.golf](https://code.golf/). The reports look like this:
 
-![A scoreboard comparing the performance of a golfer named "acotis" to a golfer named "JayXon". acotis has one win, JayXon has 77 wins, and there are 10 draws.](screenshot.png)
+![A scoreboard comparing the performance of a golfer named "acotis" to a golfer named "DialFrost". acotis has 17 wins win, DialFrost has 10 wins, and there are 13 draws.](screenshot.png)
 
 Each line lists a hole title, a score bar approximating your score and their score (out of 1000 points), and the number of bytes shorter or longer your solution is compared to theirs. In parentheses, it displays your solution's length, their solution's length, and the length of the shortest solution for that hole (the gold).
 
@@ -12,43 +12,43 @@ Each line lists a hole title, a score bar approximating your score and their sco
 To generate a report like the one above, download the file `holier` (for Linux) or `holier.exe` (for Windows) and run this command:
 
 ```
-./holier acotis JayXon --lang rust
+./holier acotis DialFrost --lang rust
 ```
 
 To generate a report based on how things stood on a particular day (defaults to today's date):
 
 ```
-./holier acotis JayXon --lang rust --as-of 2025-03-31
+./holier acotis DialFrost --lang rust --as-of 2025-03-31
 ```
 
 To use chars scoring (defaults to bytes otherwise):
 
 ```
-./holier acotis JayXon --lang rust --scoring chars
+./holier acotis DialFrost --lang rust --scoring chars
 ```
 
 To make the score bars wider or narrower (defaults to 20 characters, and the script will automatically adjust the width upwards by one character if it needs to do so to perfectly center-align everything):
 
 ```
-./holier acotis JayXon --lang rust --score-bar-width 30
+./holier acotis DialFrost --lang rust --score-bar-width 30
 ```
 
 To leave more or less room for the hole names on the left side (defaults to 33 characters, which is just enough room to accommodate the longest hole name while leaving a margin of 1 character to the left):
 
 ```
-./holier acotis JayXon --lang rust --hole-name-width 50
+./holier acotis DialFrost --lang rust --hole-name-width 50
 ```
 
 To include a third golfer's performance in the score bars as reference (can only include one additional golfer beyond the two being compared, and stats for that golfer are not printed beyond their appearance in the score bar):
 
 ```
-./holier acotis JayXon --lang rust --reference xnor-gate
+./holier acotis DialFrost --lang rust --reference xnor-gate
 ```
 
 To reverse the order of the holes in the report:
 
 ```
-./holier acotis JayXon --lang rust --reverse
+./holier acotis DialFrost --lang rust --reverse
 ```
 
 ## Note about timestamps
