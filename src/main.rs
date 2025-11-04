@@ -29,6 +29,7 @@ struct Hole {
     id: String,
     name: String,
     preamble: String,
+    #[serde(default)]
     links: Vec<HoleLink>,
 }
 
